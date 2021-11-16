@@ -1,0 +1,193 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Bowtie / Mesh Topology
+#                                                +---------+e3          e3+---------+
+#                                                | spine01 |              | spine02 |
+#                                                +---------+              +---------+
+#                                              / / |e1    \ e2          e1 /    e2| \ \
+#                                           /  /   |        \            /        |  \   \
+#                                       /    /     |          \        /          |    \   \
+#                                   /      /       |            \    /            |       \     \
+#                               /        /         |              \/              |         \       \
+#                          /           /           |             /  \             |           \          \
+#                     /               /            |           /      \           |            \              \
+#                /                   /             |         /          \         |             \                  \
+#           /                       /              |e1     / e2        e1 \     e2|              \                      \
+# +---------+              +---------+           +---------+              +---------+           +---------+              +---------+
+# | leaf03  |              | leaf04  |           | leaf05  |              | leaf06  |           | leaf07  |              | leaf08  |
+# +---------+e3          e3+---------+           +---------+e3          e3+---------+           +---------+e3          e3+---------+
+
+default_box = 'vEOS-lab-4.24.8M'
+
+Vagrant.configure(2) do |config|
+  config.vm.define 'spine01' do |spine01|
+    spine01.vm.box = default_box
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l03',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l04',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l05',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l06',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l07',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's01l08',
+                       ip: '169.254.1.11', auto_config: false
+
+    spine01.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname spine01
+      interface Management1
+        ip address 192.168.56.101/24 secondary"
+    SHELL
+    #  interface Ethernet3
+    #     shutdown
+  end
+
+  config.vm.define 'spine02' do |spine02|
+    spine02.vm.box = default_box
+    spine02.vm.network 'private_network',
+                       virtualbox__intnet: 's02l03',
+                       ip: '169.254.1.11', auto_config: false
+    spine02.vm.network 'private_network',
+                       virtualbox__intnet: 's02l04',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's02l05',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's02l06',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's02l07',
+                       ip: '169.254.1.11', auto_config: false
+    spine01.vm.network 'private_network',
+                       virtualbox__intnet: 's02l08',
+                       ip: '169.254.1.11', auto_config: false
+
+    spine02.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname spine02
+      interface Management1
+        ip address 192.168.56.102/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf03' do |leaf03|
+    leaf03.vm.box = default_box
+    leaf03.vm.network 'private_network',
+                       virtualbox__intnet: 's01l03',
+                       ip: '169.254.1.11', auto_config: false
+    leaf03.vm.network 'private_network',
+                       virtualbox__intnet: 's02l03',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf03.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf03
+      interface Management1
+        ip address 192.168.56.101/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf04' do |leaf04|
+    leaf04.vm.box = default_box
+    leaf04.vm.network 'private_network',
+                       virtualbox__intnet: 's01l04',
+                       ip: '169.254.1.11', auto_config: false
+    leaf04.vm.network 'private_network',
+                       virtualbox__intnet: 's02l04',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf04.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf04
+      interface Management1
+        ip address 192.168.56.102/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf05' do |leaf05|
+    leaf05.vm.box = default_box
+    leaf05.vm.network 'private_network',
+                       virtualbox__intnet: 's01l05',
+                       ip: '169.254.1.11', auto_config: false
+    leaf05.vm.network 'private_network',
+                       virtualbox__intnet: 's02l05',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf05.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf05
+      interface Management1
+        ip address 192.168.56.101/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf06' do |leaf06|
+    leaf06.vm.box = default_box
+    leaf06.vm.network 'private_network',
+                       virtualbox__intnet: 's01l06',
+                       ip: '169.254.1.11', auto_config: false
+    leaf06.vm.network 'private_network',
+                       virtualbox__intnet: 's02l06',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf06.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf06
+      interface Management1
+        ip address 192.168.56.102/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf07' do |leaf07|
+    leaf07.vm.box = default_box
+    leaf07.vm.network 'private_network',
+                       virtualbox__intnet: 's01l07',
+                       ip: '169.254.1.11', auto_config: false
+    leaf07.vm.network 'private_network',
+                       virtualbox__intnet: 's02l07',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf07.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf07
+      interface Management1
+        ip address 192.168.56.101/24 secondary"
+    SHELL
+  end
+
+  config.vm.define 'leaf08' do |leaf08|
+    leaf08.vm.box = default_box
+    leaf08.vm.network 'private_network',
+                       virtualbox__intnet: 's01l08',
+                       ip: '169.254.1.11', auto_config: false
+    leaf08.vm.network 'private_network',
+                       virtualbox__intnet: 's02l08',
+                       ip: '169.254.1.11', auto_config: false
+
+    leaf08.vm.provision 'shell', inline: <<-SHELL
+      sleep 30
+      FastCli -p 15 -c "configure
+      hostname leaf08
+      interface Management1
+        ip address 192.168.56.102/24 secondary"
+    SHELL
+  end
+end
