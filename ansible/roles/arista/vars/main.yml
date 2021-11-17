@@ -1,0 +1,6 @@
+---
+# file: roles/arista/tasks/main.yml
+
+- name: set switchport default mode to routed
+  arista.eos.eos_command:
+    commands: switchport default mode routed

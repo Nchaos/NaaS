@@ -1,0 +1,7 @@
+# This playbook is the master playbook for the arista machines
+
+---
+# file: arista.yml
+- hosts: aristas
+  roles:
+    - arista

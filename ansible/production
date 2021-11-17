@@ -1,0 +1,38 @@
+# file: production
+
+[chicago_aristas]
+CH3-EXT-01      # replace these with another method to hit the boxes
+CH3-EXT-02
+CH3-INT-01
+CH3-INT-02
+CH3-SPINE-01
+CH3-SPINE-02
+CH3-SVS-01
+CH3-SVS-02
+
+[boston_aristas]
+www-bos-1.example.com
+www-bos-2.example.com
+
+[atlanta_aristas]
+db-atl-1.example.com
+db-atl-2.example.com
+
+
+# aristas in all geos
+[aristas:children]
+chicago_aristas
+atlanta_aristas
+boston_aristas
+
+# everything in the chicago geo
+[chicago:children]
+chicago_aristas
+
+# everything in the atlanta geo
+[atlanta:children]
+atlanta_aristas
+
+# everything in the boston geo
+[boston:children]
+boston_aristas
