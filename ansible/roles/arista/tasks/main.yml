@@ -1,14 +1,8 @@
 ---
 # file: roles/arista/tasks/main.yml
 
-- name: show arista version
-  arista.eos.eos_command:
-    commands: show version
-  when: ansible_network_os == 'arista.eos.eos'
 
 - name: set switchport default mode to routed
-  arista.eos.eos_interfaces:
-    config: 
-     - config 
-     - switchport default mode routed
+  arista.eos.eos_config:
+    lines: 'switchport default mode routed'
   when: ansible_network_os == 'arista.eos.eos'
