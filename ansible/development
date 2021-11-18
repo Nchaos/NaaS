@@ -1,6 +1,14 @@
 # file: development
+[all:vars]
+# these defaults can be overridden for any group in the [group:vars] section
+ansible_connection=ansible.netcommon.network_cli
+ansible_user=vagrant
+ansible_ssh_password=vagrant
 
-[IVH001_aristas]
+[switches:children]
+eos
+
+[eos]
 #CH3-SPINE-01 ansible_host=127.0.0.1 ansible_port=2222 ansible_user=vagrant ansible_ssh_pass=vagrant
 #CH3-SPINE-02 ansible_host=127.0.0.1 ansible_port=2200 ansible_user=vagrant ansible_ssh_pass=vagrant
 CH3-EXT-01 ansible_host=127.0.0.1 ansible_port=2201 ansible_user=vagrant ansible_ssh_pass=vagrant
@@ -9,6 +17,11 @@ CH3-EXT-01 ansible_host=127.0.0.1 ansible_port=2201 ansible_user=vagrant ansible
 #CH3-INT-02 ansible_host=127.0.0.1 ansible_port=2205 ansible_user=vagrant ansible_ssh_pass=vagrant
 #CH3-SVS-01 ansible_host=127.0.0.1 ansible_port=2206 ansible_user=vagrant ansible_ssh_pass=vagrant
 #CH3-SVS-02 ansible_host=127.0.0.1 ansible_port=2207 ansible_user=vagrant ansible_ssh_pass=vagrant
+
+[eos:vars]
+ansible_network_os=arista.eos.eos
+ansible_user=vagrant
+ansible_ssh_password=vagrant
 
 #[boston_aristas]
 #www-bos-1.example.com
@@ -20,8 +33,8 @@ CH3-EXT-01 ansible_host=127.0.0.1 ansible_port=2201 ansible_user=vagrant ansible
 
 
 # aristas in all geos
-[aristas:children]
-IVH001_aristas
+#[aristas:children]
+#IVH001_aristas
 #atlanta_aristas
 #boston_aristas
 
