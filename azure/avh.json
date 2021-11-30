@@ -1,0 +1,337 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "tags": {
+            "type": "object",
+            "metadata": {
+                "description": "Tags for the resources in this template."
+            },
+            "defaultValue":{
+                    "Project": "NaaS"
+                }
+        },
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment for the template. i.e. dev, pre-prod, prod"
+            },
+            "allowedValues": [
+                "dev",
+                "sbx",
+                "staging",
+                "preprod",
+                "prod"
+            ]
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "The location of the resources in this template."
+            },
+            "defaultValue": "southcentralus",
+            "allowedValues": [
+                "southcentralus",
+                "eastus2"
+            ]
+        },
+        "networkSecurityGroupRules": {
+            "type": "array",
+            "defaultValue": [
+                {
+                    "name":"Allow-SSH",
+                    "properties":{
+                        "description": "Allow SSH to the Host",
+                        "priority":100,
+                        "protocol":"TCP",
+                        "access":"Allow",
+                        "direction":"Inbound",
+                        "sourceAddressPrefix":"*",
+                        "sourcePortRange":"*",
+                        "destinationAddressPrefix":"*",
+                        "destinationPortRange":"22"
+                    }
+                }
+            ]
+        },
+        "enableAcceleratedNetworking": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "addressPrefixes": {
+            "type": "array",
+            "metadata": {
+                "description": "The Address for the Virtual Network."
+            },
+            "defaultValue": [
+                "10.0.0.0/16"
+            ]
+        },
+        "publicIpAddressType": {
+            "type": "string",
+            "metadata": {
+                "description": "The Public IP Address Type."
+            },
+            "defaultValue": "Dynamic"
+        },
+        "publicIpAddressSku": {
+            "type": "string",
+            "metadata": {
+                "description": "The Public IP Address Sku."
+            },
+            "defaultValue": "Basic"
+        },
+        "osDiskType": {
+            "type": "string",
+            "defaultValue": "Premium_LRS"
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "defaultValue": "Standard_D16ds_v4"
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The admin user for the vms"
+            },
+            "defaultValue": "xadmin"
+        },
+        "adminPublicKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The admin ssh public key to authenticate to the vms"
+            }
+        },
+        "vmcount": {
+            "type": "int",
+            "metadata": {
+                "description": "The number of Azure Virtualization Hosts to Deploy."
+            },
+            "defaultValue": 1,
+            "minValue": 1,
+            "maxValue": 5
+        }
+    },
+    "variables": {
+        "shortNameLoc": "[if(equals(parameters('location'),'southcentralus'),'scus','eus2')]",
+        "networkSecurityGroupName": "nsg-sshallow-001",
+        "virtualNetworkName": "[concat('vnet-',parameters('environment'), '-',variables('shortNameLoc'),'-001')]",
+        "subnetName": "[concat('snet-',parameters('environment'), '-',variables('shortNameLoc'),'-001')]",
+        "vmName": "avh",
+        "nicName": "[concat('nic-01-',variables('vmName'))]",
+        "publicIpAddressName": "[concat('pip-',variables('vmName'),'-',parameters('environment'),'-',variables('shortNameLoc'))]",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "subnets": [
+            {
+                "name":"[variables('subnetName')]",
+                "properties":{
+                    "addressPrefix":"10.0.0.0/24"
+                }
+            }
+        ],
+        "dataDisks": [
+            {
+                    "lun":0,
+                    "createOption":"attach",
+                    "caching":"None",
+                    "writeAcceleratorEnabled":false,
+                    "id":null,
+                    "storageAccountType":null,
+                    "diskSizeGB":null,
+                    "diskEncryptionSet":null
+                }
+        ],
+        "dataDiskResources": [
+                {
+                    "name":"_DataDisk_0",
+                    "sku":"Premium_LRS",
+                    "properties":{
+                        "diskSizeGB":1024,
+                        "creationData":{
+                            "createOption":"empty"
+                        }
+                    }
+                }
+        ]
+        
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(variables('nicName'),'-',copyIndex(101))]",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "copy",
+                "count": "[parameters('vmcount')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', concat(variables('publicIpAddressName'),'-',copyIndex(101)))]"
+            ],
+            "tags": "[parameters('tags')]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'),'-',copyIndex(101)))]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                "networkSecurityGroup": {
+                    "id": "[variables('nsgId')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-02-01",
+            "name": "[variables('networkSecurityGroupName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "properties": {
+                "securityRules": "[parameters('networkSecurityGroupRules')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('virtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                },
+                "subnets": "[variables('subnets')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIpAddresses",
+            "apiVersion": "2019-02-01",
+            "name": "[concat(variables('publicIpAddressName'),'-',copyIndex(101))]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "copy": {
+                "name": "copy",
+                "count": "[parameters('vmcount')]"
+            },     
+            "sku": {
+                "name": "[parameters('publicIpAddressSku')]"
+            },
+            "properties": {
+                "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/disks",
+            "apiVersion": "2020-09-30",
+            "name": "[concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name)]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "sku": {
+                "name": "[variables('dataDiskResources')[copyIndex()].sku]"
+            },
+            "properties": "[variables('dataDiskResources')[copyIndex()].properties]",
+            "copy": {
+                "name": "managedDiskResources",
+                "count": "[length(variables('dataDiskResources'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-07-01",
+            "name": "[concat('vm',variables('vmName'),copyIndex(101))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "managedDiskResources",
+                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('nicName'),'-',copyIndex(101)))]"
+            ],
+            "copy": {
+                "name": "copy",
+                "count": "[parameters('vmcount')]"
+            },
+            "tags": "[parameters('tags')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "createOption": "fromImage",
+                        "managedDisk": {
+                            "storageAccountType": "[parameters('osDiskType')]"
+                        }
+                    },
+                    "imageReference": {
+                        "publisher": "canonical",
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "sku": "20_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "copy": [
+                        {
+                            "name": "dataDisks",
+                            "count": "[length(variables('dataDisks'))]",
+                            "input": {
+                                "lun": "[variables('dataDisks')[copyIndex('dataDisks')].lun]",
+                                "createOption": "[variables('dataDisks')[copyIndex('dataDisks')].createOption]",
+                                "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
+                                "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
+                                "managedDisk": {
+                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name), json('null')), json('null'), resourceId('Microsoft.Compute/disks', concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name))))]",
+                                    "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
+                                },
+                                "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]"
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'),'-',copyIndex(101)))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[concat(variables('vmName'),'-',copyIndex(101))]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('adminPublicKey')]"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "adminUsername": {
+            "type": "String",
+            "value": "[parameters('adminUsername')]"
+        }
+    }
+}
