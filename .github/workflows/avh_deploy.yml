@@ -38,7 +38,7 @@ jobs:
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
-          resourceGroupName: nc-usaf-naas
+          resourceGroupName: ${{ env.ResourceGroupName }}
           template: azure/avh.json
           parameters: azure/avh.parameters.json adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
 
