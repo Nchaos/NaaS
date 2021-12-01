@@ -15,7 +15,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: develop
+    env:
+      ResourceGroupName: nc-usaf-naas
+      ResourceGroupLocation: "southcentralus"
     steps:
       - uses: actions/checkout@v2
 
@@ -30,7 +32,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
+            az group create --resource-group ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
