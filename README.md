@@ -12,3 +12,6 @@ There are two development environments
 - This folder containers a multi-vm Vagrantfile that can be used to provision a environment with 2 Spine EOS VMs and 2 Leaf EOS VMs
 ### 2spine-6leaf
 - This folder containers a multi-vm Vagrantfile that can be used to provision a environment with 2 Spine EOS VMs and 6 Leaf EOS VMs
+
+## Status of Azure Virtualization Host Deployment
+[![AVH_Deploy](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.yml/badge.svg)](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.yml)
