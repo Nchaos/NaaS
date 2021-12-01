@@ -30,7 +30,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
+            az group create --resource-group ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
