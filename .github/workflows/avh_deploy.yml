@@ -4,11 +4,11 @@ name: AVH_Deploy
 
 # Controls when the workflow will run
 on:
-#  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the master branch
 #  push:
 #    branches: [ master ]
-#  pull_request:
-#    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,6 +31,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-#      - name: Deploy Azure Resource Manager (ARM) Template
-#        uses: Azure/arm-deploy@v1
+      - name: Deploy Azure Resource Manager (ARM) Template
+        uses: Azure/arm-deploy@v1
+        with:
+          resourceGroupName: nc-usaf-naas
+          template: azure/avh.json
+          parameters: azure/avh.parameters.json adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
 
