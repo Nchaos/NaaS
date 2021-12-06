@@ -1,0 +1,30 @@
+name: AVH_Deploy_Prod
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  avh_deploy:
+  runs-on: ubuntu-latest
+    uses: ./.github/actions/avh_deploy@master
+    with:
+      environmentName: production
+      resourceGroupName: usaf-naas-prod
+      location: southcentralus
+
+
+jobs:
+  avh_deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environmentName }}
+    steps:
+      - uses: actions/checkout@v2
+
+      # Call the avh_deploy workflow
+      - uses: ./.github/workflows/actions/avh_deploy@master
+        with:
+          environmentName: ${{ inputs.environmentName }}
+          resourceGroupName: ${{ inputs.resourceGroupName }}
+
