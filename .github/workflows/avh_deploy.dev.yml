@@ -8,7 +8,7 @@ on:
 jobs:
   avh_deploy:
     runs-on: ubuntu-latest
-      uses: Nchaos/NaaS/.github/actions/avh_deploy@master
+      uses: Nchaos/NaaS/.github/actions/avh_deploy.yml@master
       with:
         environmentName: development
         resourceGroupName: usaf-naas-dev
