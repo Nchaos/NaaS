@@ -15,7 +15,7 @@ jobs:
         with: 
           ref: 'develop'
       - name: "Deploy"
-        uses: ./.github/workflows/avh_deploy/avh_deploy.yml
+        uses: ./.github/workflows/avh_deploy
         with:
           environmentName: development
           resourceGroupName: usaf-naas-dev

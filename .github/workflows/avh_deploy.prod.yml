@@ -13,7 +13,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
       - name: "Deploy"
-        uses: ./.github/workflows/avh_deploy/avh_deploy.yml
+        uses: ./.github/workflows/avh_deploy
         with:
           environmentName: production
           resourceGroupName: usaf-naas-prod
