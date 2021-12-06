@@ -7,13 +7,17 @@ on:
 
 jobs:
   avh_deploy:
-    uses: ./.github/workflows/actions/avh_deploy.yml@master
-    with:
-      environmentName: production
-      resourceGroupName: usaf-naas-prod
-      location: southcentralus
-
-
+    name: 'Deploy Azure Virtualization Host'
+    runs-on: ubuntu-lastest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+      - name: "Deploy"
+        uses: ./.github/workflows/avh_deploy/avh_deploy.yml
+        with:
+          environmentName: production
+          resourceGroupName: usaf-naas-prod
+          location: southcentralus
 
 
 # jobs:
