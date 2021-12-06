@@ -7,12 +7,13 @@ on:
 
 jobs:
   avh_deploy:
-    runs-on: ubuntu-latest
-      uses: ./.github/workflows/actions/avh_deploy.yml@master
-      with:
-        environmentName: production
-        resourceGroupName: usaf-naas-prod
-        location: southcentralus
+    uses: ./.github/workflows/actions/avh_deploy.yml@master
+    with:
+      environmentName: production
+      resourceGroupName: usaf-naas-prod
+      location: southcentralus
+
+
 
 
 # jobs:
