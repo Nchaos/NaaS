@@ -110,6 +110,18 @@
             "defaultValue": 1,
             "minValue": 1,
             "maxValue": 5
+        },
+        "customScriptFileUri": {
+            "type": "string",
+            "metadata": {
+                "description": "The URI to the custom script to be executed after the OS is deployed"
+            }
+        },
+        "commandToExecute": {
+            "type": "string",
+            "metadata": {
+                "description": "The command to execute the custom script"
+            }
         }
     },
     "variables": {
@@ -324,6 +336,28 @@
                     "bootDiagnostics": {
                         "enabled": true
                     }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "apiVersion": "2019-03-01",
+            "name": "[concat(variables('vmName'), '/', 'FormatDataDisks')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {},
+                "protectedSettings": {
+                    "fileUris": [
+                        "[parameters('customScriptFileUri')]"
+                    ],
+                    "commandToExecute": "[parameters('commandToExecute')]"
                 }
             }
         }
