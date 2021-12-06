@@ -1,6 +1,6 @@
 name: AVH_Deploy
 
-on
+on:
   workflow_dispatch:
     inputs:
       environmentName:
