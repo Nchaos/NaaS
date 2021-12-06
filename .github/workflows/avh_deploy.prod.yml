@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Call the avh_deploy workflow
-      - uses: ./.github/workflows/actions/avh_deploy@master
+      - uses: Nchaos/NaaS/.github/workflows/actions/avh_deploy@master
         with:
           environmentName: ${{ inputs.environmentName }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
