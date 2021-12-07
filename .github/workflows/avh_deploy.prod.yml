@@ -10,10 +10,10 @@ jobs:
     name: 'Deploy Azure Virtualization Host'
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v2
+      # - name: "Checkout"
+      #   uses: actions/checkout@v2
       - name: "Deploy"
-        uses: ./.github/workflows/avh_deploy
+        uses: Nchaos/NaaS/.github/workflows/avh_deploy
         with:
           environmentName: production
           resourceGroupName: usaf-naas-prod
