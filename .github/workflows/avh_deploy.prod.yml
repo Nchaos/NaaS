@@ -13,7 +13,7 @@ jobs:
       # - name: "Checkout"
       #   uses: actions/checkout@v2
       - name: "Deploy"
-        uses: Nchaos/NaaS/.github/workflows/avh_deploy
+        uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
         with:
           environmentName: production
           resourceGroupName: usaf-naas-prod
