@@ -18,7 +18,7 @@ on:
 jobs:
   avh_deploy:
     name: "Deploy Azure Virtualization Host"
-    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@develop
     with:
       environmentName: ${{ github.event.inputs.environmentName }}
       environmentShortName: ${{ github.event.inputs.environmentShortName }}
