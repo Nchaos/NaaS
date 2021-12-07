@@ -58,22 +58,22 @@ jobs:
           parameters: azure/avh.parameters.json environment=${{ github.event.inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
 
 
-on:
-  workflow_call:
-    inputs:
-      username:
-        required: true
-        type: string
-    secrets:
-      envPAT:
-        required: true
+# on:
+#   workflow_call:
+#     inputs:
+#       username:
+#         required: true
+#         type: string
+#     secrets:
+#       envPAT:
+#         required: true
 
-jobs:
-  reusable_workflow_job:
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: ./.github/actions/my-action@v1
-        with:
-          username: ${{ inputs.username }}
-          token: ${{ secrets.envPAT }}  
+# jobs:
+#   reusable_workflow_job:
+#     runs-on: ubuntu-latest
+#     environment: production
+#     steps:
+#       - uses: ./.github/actions/my-action@v1
+#         with:
+#           username: ${{ inputs.username }}
+#           token: ${{ secrets.envPAT }}  
