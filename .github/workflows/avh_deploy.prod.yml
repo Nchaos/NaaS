@@ -3,8 +3,8 @@ name: AVH_Deploy_Prod
 on:
   push:
     branches: [ master ]
-  paths:
-    - azure/**
+    paths:
+    - 'azure/**'
 
 jobs:
   avh_deploy:
