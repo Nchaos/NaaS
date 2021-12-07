@@ -7,12 +7,12 @@ on:
 
 jobs:
   avh_deploy:
-    name: 'Deploy Azure Virtualization Host'
-    runs-on: ubuntu-latest
-    steps:
+    # name: 'Deploy Azure Virtualization Host'
+    # runs-on: ubuntu-latest
+    # steps:
       # - name: "Checkout"
       #   uses: actions/checkout@v2
-      - name: "Deploy"
+      - name: "Deploy Azure Virtualization Host"
         uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
         with:
           environmentName: production
