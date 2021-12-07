@@ -1,6 +1,5 @@
 name: AVH_Deploy_Dev
 
-# Controls when the workflow will run
 on:
   push:
     branches: [ develop ]
@@ -8,29 +7,11 @@ on:
 jobs:
   avh_deploy:
     name: 'Deploy Azure Virtualization Host'
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v2
-        with: 
-          ref: 'develop'
-      - name: "Deploy"
-        uses: ./.github/workflows/avh_deploy
-        with:
-          environmentName: development
-          resourceGroupName: usaf-naas-dev
-          location: southcentralus
-
-
-# jobs:
-#   avh_deploy:
-#     runs-on: ubuntu-latest
-#     environment: ${{ inputs.environmentName }}
-#     steps:
-#       - uses: actions/checkout@v2
-
-#       # Call the avh_deploy workflow
-#       - uses: Nchaos/NaaS/.github/workflows/actions/avh_deploy@master
-#         with:
-#           environmentName: ${{ inputs.environmentName }}
-#           resourceGroupName: ${{ inputs.resourceGroupName }}
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@develop
+    with:
+      environmentName: development
+      resourceGroupName: usaf-naas-dev
+      location: southcentralus
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}

@@ -60,4 +60,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ github.event.inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
