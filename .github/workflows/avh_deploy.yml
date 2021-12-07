@@ -7,24 +7,24 @@ on:
         description: 'The environment to deploy.'
         required: true
         default: 'development'
+      environmentShortName:
+        description: 'The environment Shorten name. i.e. dev, prod, sbx'
+        required: true
+        default: 'sbx'
       resourceGroupName:
         description: 'The name of the Resource Group to deploy the AVH.'
         required: true
-      location:
-        description: 'Location of the Deployment.'
-        required: false
-        default: 'southcentralus'
 
   workflow_call:
     inputs:
       environmentName:
         required: true
         type: string
-      resourceGroupName:
+      environmentShortName:
         required: true
         type: string
-      location:
-        required: false
+      resourceGroupName:
+        required: true
         type: string
     secrets:
       AZURE_CREDENTIALS:
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environmentName }}
     env:
-      ResourceGroupLocation: "southcentralus"
+      location: "southcentralus"
     steps:
       - uses: actions/checkout@v2
 
@@ -52,7 +52,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.location }}
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
@@ -60,4 +60,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }} location=${{ env.location }}

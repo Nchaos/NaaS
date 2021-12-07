@@ -10,6 +10,7 @@ jobs:
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@develop
     with:
       environmentName: development
+      environmentShortName: dev
       resourceGroupName: usaf-naas-dev
       location: southcentralus
     secrets:
