@@ -22,7 +22,8 @@ on:
 
 jobs:
   avh_deploy:
-    uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
+    name: "Deploy Azure Virtualization Host"
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy/actions.yml@master
     with:
       environmentName: production
       resourceGroupName: usaf-naas-prod
