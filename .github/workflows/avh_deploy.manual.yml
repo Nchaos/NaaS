@@ -14,16 +14,15 @@ on:
       resourceGroupName:
         description: 'The name of the Resource Group to deploy the AVH.'
         required: true
-        default: 'RG-NaaS-Default'
 
 jobs:
   avh_deploy:
     name: "Deploy Azure Virtualization Host"
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
-      environmentName: ${{ github.events.inputs.environmentName }}
-      environmentShortName: ${{ github.events.inputs.environmentShortName }}
-      resourceGroupName: ${{ github.events.inputs.resourceGroupName }}
+      environmentName: ${{ github.event.inputs.environmentName }}
+      environmentShortName: ${{ github.event.inputs.environmentShortName }}
+      resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
