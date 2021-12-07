@@ -30,7 +30,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ github.event.inputs.environmentName }}
     env:
       ResourceGroupLocation: "southcentralus"
     steps:
@@ -47,13 +47,13 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+            az group create --resource-group ${{ github.event.inputs.resourceGroupName }} --location ${{ env.ResourceGroupLocation }}
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
-          resourceGroupName: ${{ inputs.ResourceGroupName }}
+          resourceGroupName: ${{ github.event.inputs.ResourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
+          parameters: azure/avh.parameters.json environment=${{ github.event.inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
 
