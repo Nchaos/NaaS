@@ -1,20 +1,6 @@
 name: AVH_Deploy
 
 on:
-  workflow_dispatch:
-    inputs:
-      environmentName:
-        description: 'The environment to deploy.'
-        required: true
-        default: 'development'
-      environmentShortName:
-        description: 'The environment Shorten name. i.e. dev, prod, sbx'
-        required: true
-        default: 'sbx'
-      resourceGroupName:
-        description: 'The name of the Resource Group to deploy the AVH.'
-        required: true
-
   workflow_call:
     inputs:
       environmentName:
