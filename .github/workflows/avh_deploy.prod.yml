@@ -12,12 +12,12 @@ jobs:
     # steps:
       # - name: "Checkout"
       #   uses: actions/checkout@v2
-      - name: "Deploy Azure Virtualization Host"
-        uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
-        with:
-          environmentName: production
-          resourceGroupName: usaf-naas-prod
-          location: southcentralus
+    - name: "Deploy Azure Virtualization Host"
+      uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
+      with:
+        environmentName: production
+        resourceGroupName: usaf-naas-prod
+        location: southcentralus
 
 
 # jobs:
