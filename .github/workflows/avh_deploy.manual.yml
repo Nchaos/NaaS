@@ -1,0 +1,28 @@
+name: AVH_Deploy_Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      environmentName:
+        description: 'The environment to deploy.'
+        required: true
+        default: 'development'
+      environmentShortName:
+        description: 'The environment Shorten name. i.e. dev, prod, sbx'
+        required: true
+        default: 'sbx'
+      resourceGroupName:
+        description: 'The name of the Resource Group to deploy the AVH.'
+        required: true
+
+jobs:
+  avh_deploy:
+    name: "Deploy Azure Virtualization Host"
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
+    with:
+      environmentName: ${{ github.events.inputs.environmentName }}
+      environmentShortName: ${{ github.events.inputs.environmentShortName }}
+      resourceGroupName: ${{ github.events.inputs.resourceGroupName }}
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
