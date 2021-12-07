@@ -7,6 +7,42 @@
         },
         "adminPublicKey": {
             "value": ""
+        },
+        "networkSecurityGroupRules": {
+            "value": [
+                {
+                    "name": "SSH",
+                    "properties": {
+                        "priority": 100,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*",
+                        "destinationPortRange": "22"
+                    }
+                },
+                {
+                    "name": "Allow HTTPS outbound",
+                    "properties": {
+                        "priority": 200,
+                        "protocol": "TCP",
+                        "access": "Allow",
+                        "direction": "Outbound",
+                        "sourceAddressPrefix": "*",
+                        "sourcePortRange": "443",
+                        "destinationAddressPrefix": "Internet",
+                        "destinationPortRange": "443"
+                    }
+                }
+            ]
+        },
+        "customScriptFileUri": {
+            "value": "https://raw.githubusercontent.com/Nchaos/NaaS/update_arm/bash_scripts/autopart.sh"
+        },
+        "commandToExecute": {
+            "value": "bash autopart.sh"
         }
     }
 }
