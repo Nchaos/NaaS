@@ -1,19 +1,19 @@
 name: AVH_Deploy
 
 on:
-  workflow_dispatch:
-    inputs:
-      environmentName:
-        description: 'The environment to deploy.'
-        required: true
-        default: 'development'
-      resourceGroupName:
-        description: 'The name of the Resource Group to deploy the AVH.'
-        required: true
-      location:
-        description: 'Location of the Deployment.'
-        required: false
-        default: 'southcentralus'
+  # workflow_dispatch:
+  #   inputs:
+  #     environmentName:
+  #       description: 'The environment to deploy.'
+  #       required: true
+  #       default: 'development'
+  #     resourceGroupName:
+  #       description: 'The name of the Resource Group to deploy the AVH.'
+  #       required: true
+  #     location:
+  #       description: 'Location of the Deployment.'
+  #       required: false
+  #       default: 'southcentralus'
 
   workflow_call:
     inputs:
@@ -30,7 +30,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environmentName }}
+    environment: ${{ inputs.environmentName }}
     env:
       ResourceGroupLocation: "southcentralus"
     steps:
@@ -47,13 +47,13 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ github.event.inputs.resourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.ResourceGroupLocation }}
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
-          resourceGroupName: ${{ github.event.inputs.ResourceGroupName }}
+          resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
           template: azure/avh.json
           parameters: azure/avh.parameters.json environment=${{ github.event.inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
 
