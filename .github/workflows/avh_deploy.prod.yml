@@ -1,9 +1,10 @@
 name: AVH_Deploy_Prod
 
-# Controls when the workflow will run
 on:
   push:
     branches: [ master ]
+  paths:
+    - azure/**
 
 jobs:
   avh_deploy:

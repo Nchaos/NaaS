@@ -3,6 +3,8 @@ name: AVH_Deploy_Dev
 on:
   push:
     branches: [ develop ]
+  paths:
+    - azure/**
 
 jobs:
   avh_deploy:
