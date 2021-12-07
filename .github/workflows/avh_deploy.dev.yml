@@ -12,7 +12,6 @@ jobs:
       environmentName: development
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
-      location: southcentralus
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
