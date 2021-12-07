@@ -5,21 +5,6 @@ on:
   push:
     branches: [ master ]
 
-# jobs:
-#   avh_deploy:
-#     # name: 'Deploy Azure Virtualization Host'
-#     # runs-on: ubuntu-latest
-#     # steps:
-#       # - name: "Checkout"
-#       #   uses: actions/checkout@v2
-#     - name: "Deploy Azure Virtualization Host"
-#       uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
-#       with:
-#         environmentName: production
-#         resourceGroupName: usaf-naas-prod
-#         location: southcentralus
-
-
 jobs:
   avh_deploy:
     name: "Deploy Azure Virtualization Host"
@@ -28,24 +13,5 @@ jobs:
       environmentName: production
       resourceGroupName: usaf-naas-prod
       location: southcentralus
-
-# jobs:
-#   call-workflow-1:
-#     uses: octo-org/this-repo/.github/workflows/workflow-1.yml@172239021f7ba04fe7327647b213799853a9eb89
-#   call-workflow-2:
-#     uses: octo-org/another-repo/.github/workflows/workflow-2.yml@v1
-
-
-# jobs:
-#   avh_deploy:
-#     runs-on: ubuntu-latest
-#     environment: ${{ inputs.environmentName }}
-#     steps:
-#       - uses: actions/checkout@v2
-
-#       # Call the avh_deploy workflow
-#       - uses: Nchaos/NaaS/.github/workflows/actions/avh_deploy@master
-#         with:
-#           environmentName: ${{ inputs.environmentName }}
-#           resourceGroupName: ${{ inputs.resourceGroupName }}
-
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}

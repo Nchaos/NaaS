@@ -1,19 +1,19 @@
 name: AVH_Deploy
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     environmentName:
-  #       description: 'The environment to deploy.'
-  #       required: true
-  #       default: 'development'
-  #     resourceGroupName:
-  #       description: 'The name of the Resource Group to deploy the AVH.'
-  #       required: true
-  #     location:
-  #       description: 'Location of the Deployment.'
-  #       required: false
-  #       default: 'southcentralus'
+  workflow_dispatch:
+    inputs:
+      environmentName:
+        description: 'The environment to deploy.'
+        required: true
+        default: 'development'
+      resourceGroupName:
+        description: 'The name of the Resource Group to deploy the AVH.'
+        required: true
+      location:
+        description: 'Location of the Deployment.'
+        required: false
+        default: 'southcentralus'
 
   workflow_call:
     inputs:
@@ -26,6 +26,11 @@ on:
       location:
         required: false
         type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      ADMIN_PUBLIC_KEY:
+        required: true
 
 jobs:
   deploy:
@@ -56,24 +61,3 @@ jobs:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
           parameters: azure/avh.parameters.json environment=${{ github.event.inputs.environmentName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }}
-
-
-# on:
-#   workflow_call:
-#     inputs:
-#       username:
-#         required: true
-#         type: string
-#     secrets:
-#       envPAT:
-#         required: true
-
-# jobs:
-#   reusable_workflow_job:
-#     runs-on: ubuntu-latest
-#     environment: production
-#     steps:
-#       - uses: ./.github/actions/my-action@v1
-#         with:
-#           username: ${{ inputs.username }}
-#           token: ${{ secrets.envPAT }}  
