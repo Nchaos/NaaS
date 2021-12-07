@@ -22,7 +22,6 @@ on:
 
 jobs:
   avh_deploy:
-    name: "Deploy Azure Virtualization Host"
     uses: Nchaos/NaaS/.github/workflows/avh_deploy@master
     with:
       environmentName: production
