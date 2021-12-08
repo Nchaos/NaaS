@@ -347,6 +347,7 @@
             "location": "[parameters('location')]",
             "dependsOn": [
                 "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex(101))]"
+
             ],
             "copy": {
                 "name": "copy",
