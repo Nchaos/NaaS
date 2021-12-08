@@ -32,7 +32,8 @@
             "defaultValue": "southcentralus",
             "allowedValues": [
                 "southcentralus",
-                "eastus2"
+                "eastus2",
+                "westus"
             ]
         },
         "networkSecurityGroupRules": {
@@ -125,15 +126,15 @@
         }
     },
     "variables": {
-        "shortNameLoc": "[if(equals(parameters('location'),'southcentralus'),'scus','eus2')]",
-        "networkSecurityGroupName": "nsg-sshallow-001",
-        "virtualNetworkName": "[concat('vnet-',parameters('environment'), '-',variables('shortNameLoc'),'-001')]",
-        "subnetName": "[concat('snet-',parameters('environment'), '-',variables('shortNameLoc'),'-001')]",
-        "vmName": "avh",
-        "nicName": "[concat('nic-01-',variables('vmName'))]",
-        "publicIpAddressName": "[concat('pip-',variables('vmName'),'-',parameters('environment'),'-',variables('shortNameLoc'))]",
+        "networkSecurityGroupName": "[concat('nsg-', parameters('environment'), '-', parameters('location'), '-001')]",
+        "virtualNetworkName": "[concat('vnet-', parameters('environment'), '-', parameters('location'), '-001')]",
+        "subnetName": "[concat('snet-', parameters('environment'), '-', parameters('location'), '-001')]",
+        "vmComputerName": "avh",
+        "vmName": "[concat('vm', variables('vmComputerName'))]",
+        "nicName": "[concat('nic-01-', parameters('environment'), '-', parameters('location'), '-', variables('vmName'))]",
+        "publicIpAddressName": "[concat('pip-01-', parameters('environment'), '-', parameters('location'), '-', variables('vmName'))]",
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
         "subnets": [
             {
@@ -173,7 +174,7 @@
         {
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
-            "name": "[concat(variables('nicName'),'-',copyIndex(101))]",
+            "name": "[concat(variables('nicName'), copyIndex(101))]",
             "location": "[parameters('location')]",
             "copy": {
                 "name": "copy",
@@ -182,7 +183,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
                 "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', concat(variables('publicIpAddressName'),'-',copyIndex(101)))]"
+                "[concat('Microsoft.Network/publicIpAddresses/', concat(variables('publicIpAddressName'), copyIndex(101)))]"
             ],
             "tags": "[parameters('tags')]",
             "properties": {
@@ -195,7 +196,7 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'),'-',copyIndex(101)))]"
+                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'), copyIndex(101)))]"
                             }
                         }
                     }
@@ -232,7 +233,7 @@
         {
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2019-02-01",
-            "name": "[concat(variables('publicIpAddressName'),'-',copyIndex(101))]",
+            "name": "[concat(variables('publicIpAddressName'), copyIndex(101))]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
             "copy": {
@@ -249,7 +250,7 @@
         {
             "type": "Microsoft.Compute/disks",
             "apiVersion": "2020-09-30",
-            "name": "[concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name)]",
+            "name": "[concat(variables('vmName'), copyIndex(101), variables('dataDiskResources')[copyIndex()].name)]",
             "location": "[parameters('location')]",
             "tags": "[parameters('tags')]",
             "sku": {
@@ -264,11 +265,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-07-01",
-            "name": "[concat('vm',variables('vmName'),copyIndex(101))]",
+            "name": "[concat(variables('vmName'), copyIndex(101))]",
             "location": "[parameters('location')]",
             "dependsOn": [
                 "managedDiskResources",
-                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('nicName'),'-',copyIndex(101)))]"
+                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('nicName'), copyIndex(101)))]"
             ],
             "copy": {
                 "name": "copy",
@@ -302,7 +303,7 @@
                                 "caching": "[variables('dataDisks')[copyIndex('dataDisks')].caching]",
                                 "diskSizeGB": "[variables('dataDisks')[copyIndex('dataDisks')].diskSizeGB]",
                                 "managedDisk": {
-                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name), json('null')), json('null'), resourceId('Microsoft.Compute/disks', concat(variables('vmName'),'-',copyIndex(101),variables('dataDiskResources')[copyIndex()].name))))]",
+                                    "id": "[coalesce(variables('dataDisks')[copyIndex('dataDisks')].id, if(equals(concat(variables('vmName'), copyIndex(101), variables('dataDiskResources')[copyIndex()].name), json('null')), json('null'), resourceId('Microsoft.Compute/disks', concat(variables('vmName'), copyIndex(101), variables('dataDiskResources')[copyIndex()].name))))]",
                                     "storageAccountType": "[variables('dataDisks')[copyIndex('dataDisks')].storageAccountType]"
                                 },
                                 "writeAcceleratorEnabled": "[variables('dataDisks')[copyIndex('dataDisks')].writeAcceleratorEnabled]"
@@ -313,12 +314,12 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'),'-',copyIndex(101)))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'), copyIndex(101)))]"
                         }
                     ]
                 },
                 "osProfile": {
-                    "computerName": "[concat(variables('vmName'),'-',copyIndex(101))]",
+                    "computerName": "[concat(variables('vmComputerName'), copyIndex(101))]",
                     "adminUsername": "[parameters('adminUsername')]",
                     "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
@@ -342,10 +343,11 @@
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2019-03-01",
-            "name": "[concat('vm', variables('vmName'), copyIndex(101), '/', 'FormatDataDisks')]",
+            "name": "[concat(variables('vmName'), copyIndex(101), '/', 'FormatDataDisks')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', 'vm', variables('vmName'), copyIndex(101))]"
+                "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), copyIndex(101))]"
+
             ],
             "copy": {
                 "name": "copy",
