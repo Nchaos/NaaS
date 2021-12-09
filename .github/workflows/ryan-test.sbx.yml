@@ -1,0 +1,17 @@
+name: AVH_Deploy_Dev
+
+on:
+  push:
+    branches: [ bugfix-diskpart ]
+
+jobs:
+  avh_deploy:
+    name: 'Deploy Azure Virtualization Host'
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@develop
+    with:
+      environmentName: development
+      environmentShortName: sbx
+      resourceGroupName: ryan-naas-dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
