@@ -9,7 +9,7 @@ jobs:
     name: 'Deploy Azure Virtualization Host'
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@develop
     with:
-      environmentName: development
+      environmentName: sandbox
       environmentShortName: sbx
       resourceGroupName: ryan-naas-dev
     secrets:
