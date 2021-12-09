@@ -39,7 +39,7 @@
             ]
         },
         "customScriptFileUri": {
-            "value": "https://raw.githubusercontent.com/Nchaos/NaaS/update_arm/bash_scripts/autopart.sh"
+            "value": "https://raw.githubusercontent.com/Nchaos/NaaS/bugfix-diskpart/bash_scripts/autopart.sh"
         },
         "commandToExecute": {
             "value": "bash autopart.sh"
