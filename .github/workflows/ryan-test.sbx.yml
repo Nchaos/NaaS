@@ -1,4 +1,4 @@
-name: AVH_Deploy_Dev
+name: AVH_Deploy_ryanmangan
 
 on:
   push:
