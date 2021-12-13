@@ -35,7 +35,7 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDS }}
           environment: ${{ inputs.environmentCloud }}
           
       - name: Ensure ResourceGroup is created.
