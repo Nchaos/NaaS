@@ -51,4 +51,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ env.location }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }} location=${{ env.location }}
