@@ -19,14 +19,16 @@ jobs:
     environment: ${{ inputs.environmentName }}
     env:
       location: "southcentralus"
+      AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
     steps:
       - uses: actions/checkout@v2
 
       # Authenticate to Azure.
       - name: Azure Login
         uses: Azure/login@v1
-        env:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        with:
+          creds: ${{ secrets.AZURE_CREDS }}
           
       - name: Ensure ResourceGroup is created.
         uses: Azure/CLI@v1
