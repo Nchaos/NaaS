@@ -9,7 +9,7 @@ on:
       environmentCloud:
         required: false
         type: string
-        default: AzureCloud
+        default: azurecloud
       environmentShortName:
         required: true
         type: string
