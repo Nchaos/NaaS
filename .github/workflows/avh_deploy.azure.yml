@@ -1,0 +1,20 @@
+name: AVH_Deploy_Dev
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - 'azure/**'
+    - '.github/workflows/avh_deploy.azure.yml'
+    - '.github/workflows/avh_deploy.yml'
+
+jobs:
+  avh_deploy:
+    name: 'Deploy Azure Virtualization Host'
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
+    with:
+      environmentName: azure
+      environmentShortName: dev
+      resourceGroupName: usaf-naas-dev
+    secrets:
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}

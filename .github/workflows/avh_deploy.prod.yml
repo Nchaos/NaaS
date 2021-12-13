@@ -1,19 +1,19 @@
-name: AVH_Deploy_Prod
+# name: AVH_Deploy_Prod
 
-on:
-  push:
-    branches: [ master ]
-    paths:
-    - 'azure/**'
+# on:
+#   push:
+#     branches: [ master ]
+#     paths:
+#     - 'azure/**'
 
-jobs:
-  avh_deploy:
-    name: "Deploy Azure Virtualization Host"
-    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
-    with:
-      environmentName: production
-      environmentShortName: prod
-      resourceGroupName: usaf-naas-prod
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
+# jobs:
+#   avh_deploy:
+#     name: "Deploy Azure Virtualization Host"
+#     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
+#     with:
+#       environmentName: production
+#       environmentShortName: prod
+#       resourceGroupName: usaf-naas-prod
+#     secrets:
+#       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+#       ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}

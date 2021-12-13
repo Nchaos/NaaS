@@ -12,11 +12,6 @@ on:
       resourceGroupName:
         required: true
         type: string
-    secrets:
-      AZURE_CREDENTIALS:
-        required: true
-      ADMIN_PUBLIC_KEY:
-        required: true
 
 jobs:
   deploy:
@@ -24,6 +19,8 @@ jobs:
     environment: ${{ inputs.environmentName }}
     env:
       location: "southcentralus"
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUB_KEY }}
     steps:
       - uses: actions/checkout@v2
 
@@ -31,7 +28,7 @@ jobs:
       - name: Azure Login
         uses: Azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
           
       - name: Ensure ResourceGroup is created.
         uses: Azure/CLI@v1
@@ -46,4 +43,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUBLIC_KEY }} location=${{ env.location }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ env.ADMIN_PUBLIC_KEY }} location=${{ env.location }}
