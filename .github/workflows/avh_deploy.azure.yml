@@ -13,6 +13,6 @@ jobs:
     name: 'Deploy Azure Virtualization Host'
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
-      environmentName: azure
+      environmentName: Azure
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
