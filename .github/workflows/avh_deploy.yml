@@ -12,6 +12,9 @@ on:
       resourceGroupName:
         required: true
         type: string
+    secrets:
+      AZURE_CREDS:
+        required: true
 
 jobs:
   deploy:

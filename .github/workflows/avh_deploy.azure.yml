@@ -16,3 +16,6 @@ jobs:
       environmentName: Azure
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
