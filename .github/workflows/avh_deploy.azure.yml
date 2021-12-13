@@ -1,4 +1,4 @@
-name: AVH_Deploy_Dev
+name: AVH_Deploy_Azure
 
 on:
   push:
@@ -16,5 +16,3 @@ jobs:
       environmentName: azure
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
-    secrets:
-      ADMIN_PUBLIC_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
