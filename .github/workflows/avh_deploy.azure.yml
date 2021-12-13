@@ -13,9 +13,9 @@ jobs:
     name: 'Deploy Azure Virtualization Host'
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
-      environmentName: Azure
+      environment: Azure
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-
+      ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}

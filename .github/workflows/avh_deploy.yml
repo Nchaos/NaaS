@@ -3,9 +3,13 @@ name: AVH_Deploy
 on:
   workflow_call:
     inputs:
-      environmentName:
+      environment:
         required: true
         type: string
+      environmentCloud:
+        required: false
+        type: string
+        default: AzureCloud
       environmentShortName:
         required: true
         type: string
@@ -15,15 +19,15 @@ on:
     secrets:
       AZURE_CREDS:
         required: true
+      ADMIN_PUB_KEY:
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environmentName }}
+    environment: ${{ inputs.environment }}
     env:
       location: "southcentralus"
-      AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
-      ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
     steps:
       - uses: actions/checkout@v2
 
@@ -32,7 +36,7 @@ jobs:
         uses: Azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          environment: azurecloud
+          environment: ${{ inputs.environmentCloud }}
           
       - name: Ensure ResourceGroup is created.
         uses: Azure/CLI@v1
