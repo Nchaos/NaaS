@@ -17,5 +17,5 @@ jobs:
       environmentShortName: dev
       resourceGroupName: usaf-naas-dev
     secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
