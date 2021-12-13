@@ -27,8 +27,8 @@ jobs:
       # Authenticate to Azure.
       - name: Azure Login
         uses: Azure/login@v1
-        env:
-          creds: ${{ env.AZURE_CREDS }}
+        with:
+          creds: ${{ secrets.AZURE_CREDS }}
           
       - name: Ensure ResourceGroup is created.
         uses: Azure/CLI@v1
