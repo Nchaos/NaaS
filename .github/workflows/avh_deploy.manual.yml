@@ -7,10 +7,18 @@ on:
         description: 'The environment to deploy.'
         required: true
         default: Azure
+        type: choice
+        options:
+        - Azure
+        - Azure US Gov
       environmentCloud:
         description: 'The Azure Cloud environment to deploy.'
         required: true
-        default: azurecloud      
+        default: azurecloud
+        type: choice
+        options:
+        - azurecloud
+        - azureusgovernment      
       environmentShortName:
         description: 'The environment Shorten name. i.e. dev, prod, sbx'
         required: true
@@ -21,6 +29,18 @@ on:
         - staging
         - preprod
         - prod
+      location:
+        description: 'The location to deploy'
+        required: true
+        type: choice
+        options:
+        - southcentralus
+        - eastus2
+        - westus
+        - usgovarizona
+        - usgovtexas
+        - usgoviowa
+        - usgovvirginia
       resourceGroupName:
         description: 'The name of the Resource Group to deploy the AVH.'
         required: true
