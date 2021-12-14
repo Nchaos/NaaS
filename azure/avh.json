@@ -33,7 +33,11 @@
             "allowedValues": [
                 "southcentralus",
                 "eastus2",
-                "westus"
+                "westus",
+                "usgovarizona",
+                "usgovtexas",
+                "usgoviowa",
+                "usgovvirginia"
             ]
         },
         "networkSecurityGroupRules": {
@@ -237,13 +241,13 @@
                         }
                     },
                     "variables": {
-                        "networkSecurityGroupName": "[concat('nsg-', parameters('environment'), '-', parameters('location'), '-001')]",
-                        "virtualNetworkName": "[concat('vnet-', parameters('environment'), '-', parameters('location'), '-001')]",
-                        "nicName": "[concat('nic-01-', parameters('environment'), '-', parameters('location'), '-', parameters('vmName'))]",
-                        "publicIpAddressName": "[concat('pip-01-', parameters('environment'), '-', parameters('location'), '-', parameters('vmName'))]",
+                        "networkSecurityGroupName": "[concat('nsg-', parameters('environment'), '-001')]",
+                        "virtualNetworkName": "[concat('vnet-', parameters('environment'), '-001')]",
+                        "nicName": "[concat('nic-01-', parameters('environment'), '-', parameters('vmName'))]",
+                        "publicIpAddressName": "[concat('pip-01-', parameters('environment'), '-', parameters('vmName'))]",
                         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
                         "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-                        "subnetName": "[concat('snet-', parameters('environment'), '-', parameters('location'), '-001')]",
+                        "subnetName": "[concat('snet-', parameters('environment'), '-001')]",
                         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
                         "subnets": [
                             {
