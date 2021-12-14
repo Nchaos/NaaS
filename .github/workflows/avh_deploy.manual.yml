@@ -6,15 +6,21 @@ on:
       environment:
         description: 'The environment to deploy.'
         required: true
-        default: 'Azure'
+        default: Azure
       environmentCloud:
         description: 'The Azure Cloud environment to deploy.'
         required: true
-        default: 'azurecloud'      
+        default: azurecloud      
       environmentShortName:
         description: 'The environment Shorten name. i.e. dev, prod, sbx'
         required: true
-        default: 'sbx'
+        type: choice
+        options:
+        - dev
+        - sbx
+        - staging
+        - preprod
+        - prod
       resourceGroupName:
         description: 'The name of the Resource Group to deploy the AVH.'
         required: true
