@@ -6,7 +6,7 @@
             "value": "dev"
         },
         "adminPublicKey": {
-            "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCii6qC9xiCRbDMsvFIcMlrgGtMlYk+38MYPW1abU8PWWpAXpIyYpbO8vnn4gNWOmt2H9CIUMWI/eAICE1a0ni1OBpgqP4we22wmawGaeHWhNpvB/eM3zF9VHd7bsW3VaxA1gJ3UA6OGkF/C9thp76ASFspaR/qbfnSLNKMIGVbAlMEL31pl0dcfNs2Ev0kq6VD3/xWJUg7mNT9U+99MUVXkq2PoDhPjrJKMZT06fn7qSOw9nqkt60Thfzc6WEpXXNT32oX36o96xSAgLAg9NZn79tIHNI8QZvVKsAwYSce+ksE99rptaMr8oGmffPwvZnFpVax9q6DPMgWKpxrnSVdBii/q/IBhPr2LVU35cHJESASBwc0gW8D9Br4kxPqfrHRfQydkFL8fsoxWkVPRhydQf64OIazNTmslJWSsIUXUlO73hYnEW8+PX0R6L38J5Xid5cSnYwKctQZY97hoTR3GGwS5GPinFB4jnIJs9IDfneCcFPf4yauQzYzaEWZf3E= generated-by-azure"
+            "value": ""
         },
         "networkSecurityGroupRules": {
             "value": [
