@@ -542,6 +542,29 @@
                                     "commandToExecute": "[parameters('commandToExecute')]"
                                 }
                             }
+                        },
+                        {
+                            "type": "microsoft.devtestlab/schedules",
+                            "apiVersion": "2018-09-15",
+                            "name": "[concat(parameters('vmName'), '-autoshutdown')]",
+                            "location": "southcentralus",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                            ],
+                            "properties": {
+                                "status": "Enabled",
+                                "taskType": "ComputeVmShutdownTask",
+                                "dailyRecurrence": {
+                                    "time": "1900"
+                                },
+                                "timeZoneId": "Central Standard Time",
+                                "notificationSettings": {
+                                    "status": "Disabled",
+                                    "timeInMinutes": 30,
+                                    "notificationLocale": "en"
+                                },
+                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                            }
                         }
                     ],
                     "outputs": {}
