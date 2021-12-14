@@ -15,7 +15,7 @@ jobs:
     with:
       environment: Azure
       environmentShortName: dev
-      resourceGroupName: usaf-naas-prod
+      resourceGroupName: usaf-naas-dev
       alias: nichao
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}

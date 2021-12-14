@@ -52,8 +52,6 @@ jobs:
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v1
         with:
-          scope: subscription
-          region: ${{ env.location }}
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
           parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ env.location }}
