@@ -132,7 +132,6 @@
     "resources": [
         {
             "name": "nestedDeployment-step1-virtualMachines",
-            "location": "[parameters('location')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "properties": {
@@ -399,7 +398,6 @@
         },
         {
             "name": "[concat('nestedDeployment-step2-dataDisks-customScript-', variables('vmName'), copyIndex(101))]",
-            "location": "[parameters('location')]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "dependsOn": [
@@ -543,29 +541,6 @@
                                     ],
                                     "commandToExecute": "[parameters('commandToExecute')]"
                                 }
-                            }
-                        },
-                        {
-                            "type": "microsoft.devtestlab/schedules",
-                            "apiVersion": "2018-09-15",
-                            "name": "[concat(parameters('vmName'), '-autoshutdown')]",
-                            "location": "[parameters('location')]",
-                            "dependsOn": [
-                                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                            ],
-                            "properties": {
-                                "status": "Enabled",
-                                "taskType": "ComputeVmShutdownTask",
-                                "dailyRecurrence": {
-                                    "time": "1900"
-                                },
-                                "timeZoneId": "Central Standard Time",
-                                "notificationSettings": {
-                                    "status": "Disabled",
-                                    "timeInMinutes": 30,
-                                    "notificationLocale": "en"
-                                },
-                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                             }
                         }
                     ],
