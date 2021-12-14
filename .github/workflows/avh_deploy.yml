@@ -16,6 +16,9 @@ on:
       resourceGroupName:
         required: true
         type: string
+      alias:
+        required: false
+        type: string
     secrets:
       AZURE_CREDS:
         required: true
