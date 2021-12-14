@@ -19,6 +19,9 @@ on:
       alias:
         required: true
         type: string
+      location:
+        required: true
+        type: string
     secrets:
       AZURE_CREDS:
         required: true
@@ -29,8 +32,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    env:
-      location: "southcentralus"
     steps:
       - uses: actions/checkout@v2
 
@@ -46,7 +47,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.location }} --tags "alias=${{ inputs.alias }}"
+            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ inputs.location }} --tags "alias=${{ inputs.alias }}"
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
@@ -54,4 +55,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ env.location }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ inputs.location }}
