@@ -17,7 +17,7 @@ on:
         required: true
         type: string
       alias:
-        required: false
+        required: true
         type: string
     secrets:
       AZURE_CREDS:
@@ -46,7 +46,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.location }}
+            az group create --resource-group ${{ inputs.resourceGroupName }} --location ${{ env.location }} --tags "alias=${{ alias }}""
             echo "Azure resource group created"
           
       - name: Deploy Azure Resource Manager (ARM) Template
