@@ -19,4 +19,4 @@ jobs:
       alias: nichao
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
-      ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUBLIC_KEY }}
+      ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
