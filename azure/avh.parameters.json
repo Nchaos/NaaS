@@ -41,7 +41,7 @@
             ]
         },
         "customScriptFileUri": {
-            "value": "https://raw.githubusercontent.com/Nchaos/NaaS/master/bash_scripts/autopart.sh"
+            "value": "https://raw.githubusercontent.com/Nchaos/NaaS/master/azure/bash_scripts/autopart.sh"
         },
         "commandToExecute": {
             "value": "bash autopart.sh"
