@@ -14,9 +14,9 @@ jobs:
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
       environment: 'Azure US Gov'
-      environmentShortName: dev
+      environmentShortName: prod
       environmentCloud: azureusgovernment
-      resourceGroupName: usaf-naas-dev
+      resourceGroupName: usaf-naas-prod
       alias: nichao
       location: usgovtexas
     secrets:
