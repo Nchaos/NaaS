@@ -64,6 +64,13 @@
                 }
             ]
         },
+        "networkSecurityGroupSourceIP": {
+            "type": "string",
+            "metadata": {
+                "description": "The Source IP Address for accesses the VMs."
+            },
+            "defaultValue": "*"
+        },
         "enableAcceleratedNetworking": {
             "type": "bool",
             "defaultValue": true
@@ -161,6 +168,9 @@
                     "networkSecurityGroupRules": {
                         "value": "[parameters('networkSecurityGroupRules')]"
                     },
+                    "networkSecurityGroupSourceIP": {
+                        "value": "[parameters('networkSecurityGroupSourceIP')]"
+                    },
                     "addressPrefixes": {
                         "value": "[parameters('addressPrefixes')]"
                     },
@@ -210,6 +220,9 @@
                         },
                         "networkSecurityGroupRules": {
                             "type": "array"
+                        },
+                        "networkSecurityGroupSourceIP": {
+                            "type": "string"
                         },
                         "addressPrefixes": {
                             "type": "array"
@@ -261,7 +274,16 @@
                                     "addressPrefix":"10.0.0.0/24"
                                 }
                             }
-                        ]
+                        ],
+                        "nsgSourceAddressPrefix": [
+                            {
+                                "name":"Allow-SSH",
+                                "properties":{
+                                    "sourceAddressPrefix":"[parameters('networkSecurityGroupSourceIP')]"
+                                    }
+                            }
+                        ],
+                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('nsgSourceAddressPrefix')]"
                     },
                     "resources": [
                         {
@@ -307,7 +329,7 @@
                             "location": "[parameters('location')]",
                             "tags": "[parameters('tags')]",
                             "properties": {
-                                "securityRules": "[parameters('networkSecurityGroupRules')]"
+                                "securityRules": "[variables('networkSecurityGroupRules')]"
                             }
                         },
                         {
@@ -397,6 +419,33 @@
                                     "bootDiagnostics": {
                                         "enabled": true
                                     }
+                                }
+                            }
+                        },
+                        {
+                            "condition": "[not(equals(parameters('environment'), 'prod'))]",
+                            "type": "Microsoft.DevTestLab/schedules",
+                            "apiVersion": "2018-09-15",
+                            "name": "[concat('shutdown-computevm-', parameters('vmName'), copyIndex(101))]",
+                            "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), copyIndex(101))]"
+                            ],
+                            "copy": {
+                                "name": "copy",
+                                "count": "[parameters('vmcount')]"
+                            },
+                            "tags": "[parameters('tags')]",
+                            "properties": {
+                                "status": "Enabled",
+                                "taskType": "ComputeVmShutdownTask",
+                                "dailyRecurrence": {
+                                    "time": "1900"
+                                },
+                                "timeZoneId": "Central Standard Time",
+                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmName'), copyIndex(101)))]",
+                                "notificationSettings": {
+                                    "status": "Disabled"
                                 }
                             }
                         }
