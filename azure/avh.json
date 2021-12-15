@@ -399,6 +399,33 @@
                                     }
                                 }
                             }
+                        },
+                        {
+                            "condition": "[not(equals(parameters('environment'), 'prod'))]",
+                            "type": "Microsoft.DevTestLab/schedules",
+                            "apiVersion": "2018-09-15",
+                            "name": "[concat('shutdown-computevm-', parameters('vmName'), copyIndex(101))]",
+                            "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), copyIndex(101))]"
+                            ],
+                            "copy": {
+                                "name": "copy",
+                                "count": "[parameters('vmcount')]"
+                            },
+                            "tags": "[parameters('tags')]",
+                            "properties": {
+                                "status": "Enabled",
+                                "taskType": "ComputeVmShutdownTask",
+                                "dailyRecurrence": {
+                                    "time": "1900"
+                                },
+                                "timeZoneId": "Central Standard Time",
+                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmName'), copyIndex(101)))]",
+                                "notificationSettings": {
+                                    "status": "Disabled"
+                                }
+                            }
                         }
                     ],
                     "outputs": {}
