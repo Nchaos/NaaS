@@ -1,7 +1,7 @@
 name: AVH_Deploy_MAG
 
 on:
-  pr:
+  pull_request:
     branches: [ master ]
     paths:
     - 'azure/**'
