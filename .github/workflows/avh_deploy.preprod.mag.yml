@@ -5,7 +5,7 @@ on:
     branches: [ master ]
     paths:
     - 'azure/**'
-    - '.github/workflows/avh_deploy.*.yml'
+    - '.github/workflows/avh_deploy.*'
 
 jobs:
   avh_deploy:
