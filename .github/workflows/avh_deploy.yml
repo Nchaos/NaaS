@@ -57,4 +57,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ inputs.location }} alias=${{ inputs.alias }} networkSecurityGroupRules.properties.sourceAddressPrefix=${{ SOURCE_IP_ADDRESS }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ inputs.location }} alias=${{ inputs.alias }} networkSecurityGroupRules=[{"name":"Allow-SSH","properties":{"sourceAddressPrefix":"${{ SOURCE_IP_ADDRESS }}"}}]
