@@ -18,7 +18,7 @@ on:
         type: choice
         options:
         - azurecloud
-        - azureusgovernment      
+        - azureusgovernment
       environmentShortName:
         description: 'The environment Shorten name. i.e. dev, prod, sbx'
         required: true
@@ -44,6 +44,10 @@ on:
       resourceGroupName:
         description: 'The name of the Resource Group to deploy the AVH.'
         required: true
+      alias:
+        description: 'The alias of the user initiating this deployment.'
+        required: true
+        type: string
 
 jobs:
   avh_deploy:
@@ -54,6 +58,7 @@ jobs:
       environmentCloud: ${{ github.event.inputs.environmentCloud }}
       environmentShortName: ${{ github.event.inputs.environmentShortName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
+      alias: ${{ github.event.inputs.alias }}
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}

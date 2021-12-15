@@ -2,14 +2,19 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "alias": {
+            "type": "string",
+            "metadata": {
+                "description": "Alias of the user deploying this template."
+            },
+            "defaultValue": ""
+        },
         "tags": {
             "type": "object",
             "metadata": {
                 "description": "Tags for the resources in this template."
             },
-            "defaultValue":{
-                    "Project": "NaaS"
-                }
+            "defaultValue": "[if(empty(parameters('alias')), json('{\"Project\": \"NaaS\"}'), json(concat('{\"Project\": \"NaaS\", \"Alias\": \"', parameters('alias'), '\"}')))]"
         },
         "environment": {
             "type": "string",
