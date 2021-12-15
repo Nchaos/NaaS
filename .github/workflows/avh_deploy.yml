@@ -27,6 +27,8 @@ on:
         required: true
       ADMIN_PUB_KEY:
         required: true
+      SOURCE_IP_ADDRESS:
+        required: true
 
 jobs:
   deploy:
