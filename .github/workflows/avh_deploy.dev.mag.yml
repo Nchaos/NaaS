@@ -1,23 +1,23 @@
-name: AVH_Deploy_Azure
+name: AVH_Deploy_MAG
 
 on:
-  push:
+  pr:
     branches: [ master ]
     paths:
     - 'azure/**'
-    - '.github/workflows/avh_deploy.azure.yml'
-    - '.github/workflows/avh_deploy.yml'
+    - '.github/workflows/avh_deploy.*.yml'
 
 jobs:
   avh_deploy:
     name: 'Deploy Azure Virtualization Host'
     uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
-      environment: Azure
-      environmentShortName: prod
-      resourceGroupName: usaf-naas-prod
+      environment: 'Azure US Gov Dev'
+      environmentShortName: dev
+      environmentCloud: azureusgovernment
+      resourceGroupName: usaf-naas-dev
       alias: nichao
-      location: southcentralus
+      location: usgovtexas
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
