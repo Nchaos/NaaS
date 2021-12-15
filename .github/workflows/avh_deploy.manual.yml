@@ -11,6 +11,7 @@ on:
         options:
         - Azure
         - Azure US Gov
+        - Azure US Gov Dev
       environmentCloud:
         description: 'The Azure Cloud environment to deploy.'
         required: true
