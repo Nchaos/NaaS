@@ -283,7 +283,7 @@
                                     }
                             }
                         ],
-                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('nsgSourceAddressPrefix')]"
+                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), variables('nsgSourceAddressPrefix'))]"
                     },
                     "resources": [
                         {
