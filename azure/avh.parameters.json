@@ -11,20 +11,6 @@
         "networkSecurityGroupRules": {
             "value": [
                 {
-                    "name": "Allow-SSH",
-                    "properties": {
-                        "description": "Allow SSH to the Host",
-                        "priority": 100,
-                        "protocol": "TCP",
-                        "access": "Allow",
-                        "direction": "Inbound",
-                        "sourceAddressPrefix": "*",
-                        "sourcePortRange": "*",
-                        "destinationAddressPrefix": "*",
-                        "destinationPortRange": "22"
-                    }
-                },
-                {
                     "name": "Allow-HTTPS",
                     "properties": {
                         "description": "Allow HTTPS to the internet",
