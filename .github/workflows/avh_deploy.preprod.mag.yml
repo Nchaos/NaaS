@@ -10,7 +10,7 @@ on:
 jobs:
   avh_deploy:
     name: 'Deploy Azure Virtualization Host'
-    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@$GITHUB_HEAD_REF
+    uses: Nchaos/NaaS/.github/workflows/avh_deploy.yml@master
     with:
       environment: 'Azure US Gov Dev'
       environmentShortName: preprod
