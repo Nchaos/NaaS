@@ -26,7 +26,7 @@ Deployments will be triggered automatically on pushes to the master branch that 
 ### Manual Deployments
 Deployments can be initiated manually using the following steps:
 
-1. Nagivate to Actions
+1. Navigate to Actions
 2. Select the AVH_Deploy_Manual workflow
 3. Click 'Run workflow'
 4. Complete the form
