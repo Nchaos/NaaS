@@ -50,11 +50,11 @@
             "defaultValue": []
         },
         "networkSecurityGroupSshSourceIP": {
-            "type": "string",
+            "type": "array",
             "metadata": {
                 "description": "The Source IP Address(es) for accessing the VMs."
             },
-            "defaultValue": "*"
+            "defaultValue": []
         },
         "networkSecurityGroupSshRule": {
             "type": "array",
@@ -67,7 +67,8 @@
                         "protocol": "TCP",
                         "access": "Allow",
                         "direction": "Inbound",
-                        "sourceAddressPrefix": "[parameters('networkSecurityGroupSshSourceIP')]",
+                        "sourceAddressPrefix": "[if(empty(parameters('networkSecurityGroupSshSourceIP')), '*', '')]",
+                        "sourceAddressPrefixes": "[parameters('networkSecurityGroupSshSourceIP')]" ,
                         "sourcePortRange": "*",
                         "destinationAddressPrefix": "*",
                         "destinationPortRange": "22"
