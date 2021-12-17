@@ -47,6 +47,9 @@
         },
         "networkSecurityGroupRules": {
             "type": "array",
+            "metadata": {
+                "description": "A set of NSG rules to control traffic to/from the VMs (combined with the rule specified in parameter networkSecurityGroupSshRule)."
+            },
             "defaultValue": []
         },
         "networkSecurityGroupSshSourceIP": {
@@ -58,6 +61,9 @@
         },
         "networkSecurityGroupSshRule": {
             "type": "array",
+            "metadata": {
+                "description": "A NSG rule to allow SSH to the VMs from IP addresses specified in parameter networkSecurityGroupSshSourceIP (allows any IP if none are specified)."
+            },
             "defaultValue": [
                 {
                     "name": "Allow-SSH",
