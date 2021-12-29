@@ -207,7 +207,7 @@
                         "value": "[variables('vmComputerName')]"
                     },
                     "vmCount": {
-                        "value": "[parameters('vmcount')]"
+                        "value": "[parameters('vmCount')]"
                     },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
@@ -278,11 +278,20 @@
                         "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
                         "subnetName": "[concat('snet-', parameters('environment'), '-001')]",
                         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+                        "bastionHostName": "[concat(variables('virtualNetworkName'), '-bastion')]",
+                        "bastionPublicIpAddressName": "[concat('pip-01-', parameters('environment'), '-bastion')]",
+                        "bastionSubnetName": "AzureBastionSubnet",
                         "subnets": [
                             {
-                                "name":"[variables('subnetName')]",
+                                "name": "[variables('subnetName')]",
                                 "properties": {
-                                    "addressPrefix":"10.0.0.0/24"
+                                    "addressPrefix": "10.0.0.0/24"
+                                }
+                            },
+                            {
+                                "name": "[variables('bastionSubnetName')]",
+                                "properties": {
+                                    "addressPrefix": "10.0.1.0/26"
                                 }
                             }
                         ],
@@ -296,7 +305,7 @@
                             "location": "[parameters('location')]",
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "dependsOn": [
                                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -356,13 +365,26 @@
                             "tags": "[parameters('tags')]",
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },     
                             "sku": {
                                 "name": "[parameters('publicIpAddressSku')]"
                             },
                             "properties": {
                                 "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Network/publicIpAddresses",
+                            "apiVersion": "2019-02-01",
+                            "name": "[variables('bastionPublicIpAddressName')]",
+                            "location": "[parameters('location')]",
+                            "tags": "[parameters('tags')]",
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "properties": {
+                                "publicIpAllocationMethod": "Static"
                             }
                         },
                         {
@@ -375,7 +397,7 @@
                             ],
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "tags": "[parameters('tags')]",
                             "properties": {
@@ -436,7 +458,7 @@
                             ],
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "tags": "[parameters('tags')]",
                             "properties": {
@@ -450,6 +472,34 @@
                                 "notificationSettings": {
                                     "status": "Disabled"
                                 }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Network/bastionHosts",
+                            "apiVersion": "2020-11-01",
+                            "name": "[variables('bastionHostName')]",
+                            "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                                "[concat('Microsoft.Network/publicIpAddresses/', variables('bastionPublicIpAddressName'))]"
+                            ],
+                            "sku": {
+                                "name": "Basic"
+                            },
+                            "properties": {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "IpConf",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[concat(variables('vnetId'), '/subnets/', variables('bastionSubnetName'))]"
+                                            },
+                                            "publicIPAddress": {
+                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('bastionPublicIpAddressName'))]"
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ],
@@ -466,7 +516,7 @@
             ],
             "copy": {
                 "name": "copy",
-                "count": "[parameters('vmcount')]"
+                "count": "[parameters('vmCount')]"
             },
             "properties": {
                 "expressionEvaluationOptions": {
@@ -513,24 +563,24 @@
                     "variables": {
                         "dataDisks": [
                             {
-                                "lun":0,
-                                "createOption":"attach",
-                                "caching":"None",
-                                "writeAcceleratorEnabled":false,
-                                "id":null,
-                                "storageAccountType":null,
-                                "diskSizeGB":null,
-                                "diskEncryptionSet":null
+                                "lun": 0,
+                                "createOption": "attach",
+                                "caching": "None",
+                                "writeAcceleratorEnabled": false,
+                                "id": null,
+                                "storageAccountType": null,
+                                "diskSizeGB": null,
+                                "diskEncryptionSet": null
                             }
                         ],
                         "dataDiskResources": [
                             {
-                                "name":"_DataDisk_0",
-                                "sku":"Premium_LRS",
-                                "properties":{
-                                    "diskSizeGB":1024,
-                                    "creationData":{
-                                        "createOption":"empty"
+                                "name": "_DataDisk_0",
+                                "sku": "Premium_LRS",
+                                "properties": {
+                                    "diskSizeGB": 1024,
+                                    "creationData": {
+                                        "createOption": "empty"
                                     }
                                 }
                             }
