@@ -52,36 +52,6 @@
             },
             "defaultValue": []
         },
-        "networkSecurityGroupSshSourceIP": {
-            "type": "array",
-            "metadata": {
-                "description": "The Source IP Address(es) for accessing the VMs."
-            },
-            "defaultValue": []
-        },
-        "networkSecurityGroupSshRule": {
-            "type": "array",
-            "metadata": {
-                "description": "A NSG rule to allow SSH to the VMs from IP addresses specified in parameter networkSecurityGroupSshSourceIP (allows any IP if none are specified)."
-            },
-            "defaultValue": [
-                {
-                    "name": "Allow-SSH",
-                    "properties": {
-                        "description": "Allow SSH to the Host",
-                        "priority": 100,
-                        "protocol": "TCP",
-                        "access": "Allow",
-                        "direction": "Inbound",
-                        "sourceAddressPrefix": "[if(empty(parameters('networkSecurityGroupSshSourceIP')), '*', '')]",
-                        "sourceAddressPrefixes": "[parameters('networkSecurityGroupSshSourceIP')]" ,
-                        "sourcePortRange": "*",
-                        "destinationAddressPrefix": "*",
-                        "destinationPortRange": "22"
-                    }
-                }
-            ]
-        },
         "enableAcceleratedNetworking": {
             "type": "bool",
             "defaultValue": true
@@ -130,7 +100,7 @@
                 "description": "The admin ssh public key to authenticate to the vms"
             }
         },
-        "vmcount": {
+        "vmCount": {
             "type": "int",
             "metadata": {
                 "description": "The number of Azure Virtualization Hosts to Deploy."
@@ -178,9 +148,6 @@
                     },
                     "networkSecurityGroupRules": {
                         "value": "[parameters('networkSecurityGroupRules')]"
-                    },
-                    "networkSecurityGroupSshRule": {
-                        "value": "[parameters('networkSecurityGroupSshRule')]"
                     },
                     "addressPrefixes": {
                         "value": "[parameters('addressPrefixes')]"
@@ -230,9 +197,6 @@
                             "type": "string"
                         },
                         "networkSecurityGroupRules": {
-                            "type": "array"
-                        },
-                        "networkSecurityGroupSshRule": {
                             "type": "array"
                         },
                         "addressPrefixes": {
@@ -295,7 +259,7 @@
                                 }
                             }
                         ],
-                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
+                        "networkSecurityGroupRules": "[parameters('networkSecurityGroupRules')]"
                     },
                     "resources": [
                         {
