@@ -25,6 +25,7 @@ on:
       sshSourceIp:
         required: false
         type: string
+        default: ""
       deployBastion:
         required: false
         type: boolean
