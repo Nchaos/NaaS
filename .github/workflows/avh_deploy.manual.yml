@@ -53,6 +53,10 @@ on:
         description: 'Comma-separated list of IP addresses allowed for SSH.'
         required: false
         type: string
+      deployBastion:
+        description: 'Deploy bastion host?'
+        required: false
+        type: boolean
 
 jobs:
   avh_deploy:
@@ -65,6 +69,7 @@ jobs:
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
       alias: ${{ github.event.inputs.alias }}
       sshSourceIp: ${{ github.event.inputs.sshSourceIp }}
+      deployBastion: ${{ github.event.inputs.deployBastion }}
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}

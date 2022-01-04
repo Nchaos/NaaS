@@ -150,6 +150,13 @@
             "metadata": {
                 "description": "The command to execute the custom script"
             }
+        },
+        "deployBastion": {
+            "type": "bool",
+            "metadata": {
+                "description": "Determines whether a bastion host will be deployed for accessing the VM(s)"
+            },
+            "defaultValue": false
         }
     },
     "variables": {
@@ -214,6 +221,9 @@
                     },
                     "adminPublicKey": {
                         "value": "[parameters('adminPublicKey')]"
+                    },
+                    "deployBastion": {
+                        "value": "[parameters('deployBastion')]"
                     }
                 },
                 "template": {
@@ -267,6 +277,9 @@
                         },
                         "adminPublicKey": {
                             "type": "securestring"
+                        },
+                        "deployBastion": {
+                            "type": "bool"
                         }
                     },
                     "variables": {
@@ -281,13 +294,15 @@
                         "bastionHostName": "[concat(variables('virtualNetworkName'), '-bastion')]",
                         "bastionPublicIpAddressName": "[concat('pip-01-', parameters('environment'), '-bastion')]",
                         "bastionSubnetName": "AzureBastionSubnet",
-                        "subnets": [
+                        "defaultSubnet": [
                             {
                                 "name": "[variables('subnetName')]",
                                 "properties": {
                                     "addressPrefix": "10.0.0.0/24"
                                 }
-                            },
+                            }
+                        ],
+                        "bastionSubnet": [
                             {
                                 "name": "[variables('bastionSubnetName')]",
                                 "properties": {
@@ -295,6 +310,7 @@
                                 }
                             }
                         ],
+                        "subnets": "[if(parameters('deployBastion'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
                         "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
                     },
                     "resources": [
@@ -375,6 +391,7 @@
                             }
                         },
                         {
+                            "condition": "[parameters('deployBastion')]",
                             "type": "Microsoft.Network/publicIpAddresses",
                             "apiVersion": "2019-02-01",
                             "name": "[variables('bastionPublicIpAddressName')]",
@@ -475,6 +492,7 @@
                             }
                         },
                         {
+                            "condition": "[parameters('deployBastion')]",
                             "type": "Microsoft.Network/bastionHosts",
                             "apiVersion": "2020-11-01",
                             "name": "[variables('bastionHostName')]",

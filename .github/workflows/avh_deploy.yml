@@ -25,6 +25,9 @@ on:
       sshSourceIp:
         required: false
         type: string
+      deployBastion:
+        required: false
+        type: boolean
     secrets:
       AZURE_CREDS:
         required: true
@@ -60,4 +63,4 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.resourceGroupName }}
           template: azure/avh.json
-          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ inputs.location }} alias=${{ inputs.alias }} networkSecurityGroupSshSourceIP=${{ inputs.sshSourceIp }}
+          parameters: azure/avh.parameters.json environment=${{ inputs.environmentShortName }} adminPublicKey=${{ secrets.ADMIN_PUB_KEY }} location=${{ inputs.location }} alias=${{ inputs.alias }} networkSecurityGroupSshSourceIP=${{ inputs.sshSourceIp }} deployBastion=${{ inputs.deployBastion }}
