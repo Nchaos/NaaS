@@ -49,6 +49,10 @@ on:
         description: 'The alias of the user initiating this deployment.'
         required: true
         type: string
+      sshSourceIp:
+        description: 'Comma-separated list of IP addresses allowed for SSH.'
+        required: false
+        type: string
 
 jobs:
   avh_deploy:
@@ -60,6 +64,7 @@ jobs:
       environmentShortName: ${{ github.event.inputs.environmentShortName }}
       resourceGroupName: ${{ github.event.inputs.resourceGroupName }}
       alias: ${{ github.event.inputs.alias }}
+      sshSourceIp: ${{ github.event.inputs.sshSourceIp }}
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
