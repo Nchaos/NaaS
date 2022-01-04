@@ -33,4 +33,7 @@ Deployments can be initiated manually using the following steps:
 5. Click 'Run workflow' at the bottom of the form
 
 ## Status of Azure Virtualization Host Deployment
+### Azure
 [![AVH_Deploy_Azure](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.azure.yml/badge.svg?branch=master)](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.azure.yml)
+### Azure Government
+[![AVH_Deploy_MAG](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.mag.yml/badge.svg)](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.mag.yml)
