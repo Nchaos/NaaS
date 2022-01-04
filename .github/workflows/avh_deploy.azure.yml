@@ -21,4 +21,3 @@ jobs:
     secrets:
       AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS }}
       ADMIN_PUB_KEY: ${{ secrets.ADMIN_PUB_KEY }}
-      SOURCE_IP_ADDRESS: ${{ secrets.SOURCE_IP_ADDRESS }}
