@@ -55,14 +55,14 @@
         "networkSecurityGroupSshSourceIP": {
             "type": "array",
             "metadata": {
-                "description": "The Source IP Address(es) for accessing the VMs."
+                "description": "Source IP address(es) for accessing the VMs"
             },
-            "defaultValue": []
+            "defaultValue": ""
         },
         "networkSecurityGroupSshRule": {
             "type": "array",
             "metadata": {
-                "description": "A NSG rule to allow SSH to the VMs from IP addresses specified in parameter networkSecurityGroupSshSourceIP (allows any IP if none are specified)."
+                "description": "NSG rule to allow SSH to the VMs from IP addresses specified in parameter networkSecurityGroupSshSourceIP (allows any IP if none are specified)"
             },
             "defaultValue": [
                 {
@@ -74,7 +74,7 @@
                         "access": "Allow",
                         "direction": "Inbound",
                         "sourceAddressPrefix": "[if(empty(parameters('networkSecurityGroupSshSourceIP')), '*', '')]",
-                        "sourceAddressPrefixes": "[parameters('networkSecurityGroupSshSourceIP')]" ,
+                        "sourceAddressPrefixes": "[if(empty(parameters('networkSecurityGroupSshSourceIP')), parameters('networkSecurityGroupSshSourceIP'), split(parameters('networkSecurityGroupSshSourceIP'), ','))]",
                         "sourcePortRange": "*",
                         "destinationAddressPrefix": "*",
                         "destinationPortRange": "22"
@@ -130,7 +130,7 @@
                 "description": "The admin ssh public key to authenticate to the vms"
             }
         },
-        "vmcount": {
+        "vmCount": {
             "type": "int",
             "metadata": {
                 "description": "The number of Azure Virtualization Hosts to Deploy."
@@ -150,6 +150,13 @@
             "metadata": {
                 "description": "The command to execute the custom script"
             }
+        },
+        "deployBastion": {
+            "type": "bool",
+            "metadata": {
+                "description": "Determines whether a bastion host will be deployed for accessing the VM(s)"
+            },
+            "defaultValue": false
         }
     },
     "variables": {
@@ -207,13 +214,16 @@
                         "value": "[variables('vmComputerName')]"
                     },
                     "vmCount": {
-                        "value": "[parameters('vmcount')]"
+                        "value": "[parameters('vmCount')]"
                     },
                     "adminUsername": {
                         "value": "[parameters('adminUsername')]"
                     },
                     "adminPublicKey": {
                         "value": "[parameters('adminPublicKey')]"
+                    },
+                    "deployBastion": {
+                        "value": "[parameters('deployBastion')]"
                     }
                 },
                 "template": {
@@ -267,6 +277,9 @@
                         },
                         "adminPublicKey": {
                             "type": "securestring"
+                        },
+                        "deployBastion": {
+                            "type": "bool"
                         }
                     },
                     "variables": {
@@ -278,14 +291,26 @@
                         "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
                         "subnetName": "[concat('snet-', parameters('environment'), '-001')]",
                         "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
-                        "subnets": [
+                        "bastionHostName": "[concat(variables('virtualNetworkName'), '-bastion')]",
+                        "bastionPublicIpAddressName": "[concat('pip-01-', parameters('environment'), '-bastion')]",
+                        "bastionSubnetName": "AzureBastionSubnet",
+                        "defaultSubnet": [
                             {
-                                "name":"[variables('subnetName')]",
+                                "name": "[variables('subnetName')]",
                                 "properties": {
-                                    "addressPrefix":"10.0.0.0/24"
+                                    "addressPrefix": "10.0.0.0/24"
                                 }
                             }
                         ],
+                        "bastionSubnet": [
+                            {
+                                "name": "[variables('bastionSubnetName')]",
+                                "properties": {
+                                    "addressPrefix": "10.0.1.0/26"
+                                }
+                            }
+                        ],
+                        "subnets": "[if(parameters('deployBastion'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
                         "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
                     },
                     "resources": [
@@ -296,7 +321,7 @@
                             "location": "[parameters('location')]",
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "dependsOn": [
                                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
@@ -356,13 +381,27 @@
                             "tags": "[parameters('tags')]",
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },     
                             "sku": {
                                 "name": "[parameters('publicIpAddressSku')]"
                             },
                             "properties": {
                                 "publicIpAllocationMethod": "[parameters('publicIpAddressType')]"
+                            }
+                        },
+                        {
+                            "condition": "[parameters('deployBastion')]",
+                            "type": "Microsoft.Network/publicIpAddresses",
+                            "apiVersion": "2019-02-01",
+                            "name": "[variables('bastionPublicIpAddressName')]",
+                            "location": "[parameters('location')]",
+                            "tags": "[parameters('tags')]",
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "properties": {
+                                "publicIpAllocationMethod": "Static"
                             }
                         },
                         {
@@ -375,7 +414,7 @@
                             ],
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "tags": "[parameters('tags')]",
                             "properties": {
@@ -436,7 +475,7 @@
                             ],
                             "copy": {
                                 "name": "copy",
-                                "count": "[parameters('vmcount')]"
+                                "count": "[parameters('vmCount')]"
                             },
                             "tags": "[parameters('tags')]",
                             "properties": {
@@ -450,6 +489,35 @@
                                 "notificationSettings": {
                                     "status": "Disabled"
                                 }
+                            }
+                        },
+                        {
+                            "condition": "[parameters('deployBastion')]",
+                            "type": "Microsoft.Network/bastionHosts",
+                            "apiVersion": "2020-11-01",
+                            "name": "[variables('bastionHostName')]",
+                            "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+                                "[concat('Microsoft.Network/publicIpAddresses/', variables('bastionPublicIpAddressName'))]"
+                            ],
+                            "sku": {
+                                "name": "Basic"
+                            },
+                            "properties": {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "IpConf",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[concat(variables('vnetId'), '/subnets/', variables('bastionSubnetName'))]"
+                                            },
+                                            "publicIPAddress": {
+                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('bastionPublicIpAddressName'))]"
+                                            }
+                                        }
+                                    }
+                                ]
                             }
                         }
                     ],
@@ -466,7 +534,7 @@
             ],
             "copy": {
                 "name": "copy",
-                "count": "[parameters('vmcount')]"
+                "count": "[parameters('vmCount')]"
             },
             "properties": {
                 "expressionEvaluationOptions": {
@@ -513,24 +581,24 @@
                     "variables": {
                         "dataDisks": [
                             {
-                                "lun":0,
-                                "createOption":"attach",
-                                "caching":"None",
-                                "writeAcceleratorEnabled":false,
-                                "id":null,
-                                "storageAccountType":null,
-                                "diskSizeGB":null,
-                                "diskEncryptionSet":null
+                                "lun": 0,
+                                "createOption": "attach",
+                                "caching": "None",
+                                "writeAcceleratorEnabled": false,
+                                "id": null,
+                                "storageAccountType": null,
+                                "diskSizeGB": null,
+                                "diskEncryptionSet": null
                             }
                         ],
                         "dataDiskResources": [
                             {
-                                "name":"_DataDisk_0",
-                                "sku":"Premium_LRS",
-                                "properties":{
-                                    "diskSizeGB":1024,
-                                    "creationData":{
-                                        "createOption":"empty"
+                                "name": "_DataDisk_0",
+                                "sku": "Premium_LRS",
+                                "properties": {
+                                    "diskSizeGB": 1024,
+                                    "creationData": {
+                                        "createOption": "empty"
                                     }
                                 }
                             }
