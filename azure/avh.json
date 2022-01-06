@@ -159,7 +159,9 @@
             "defaultValue": "false",
             "allowedValues": [
                 "true",
-                "false"
+                "false",
+                "True",
+                "False"
             ]
         }
     },
