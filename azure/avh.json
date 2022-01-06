@@ -53,7 +53,7 @@
             "defaultValue": []
         },
         "networkSecurityGroupSshSourceIP": {
-            "type": "string",
+            "type": "array",
             "metadata": {
                 "description": "Source IP address(es) for accessing the VMs"
             },
