@@ -165,7 +165,8 @@
     },
     "variables": {
         "vmComputerName": "avh",
-        "vmName": "[concat('vm', variables('vmComputerName'))]"
+        "vmName": "[concat('vm', variables('vmComputerName'))]",
+        "deployBastionBoolean": "[bool(parameters('deployBastion'))]"
     },
     "resources": [
         {
@@ -227,7 +228,7 @@
                         "value": "[parameters('adminPublicKey')]"
                     },
                     "deployBastion": {
-                        "value": "[parameters('deployBastion')]"
+                        "value": "[variables('deployBastionBoolean')]"
                     }
                 },
                 "template": {
@@ -283,7 +284,7 @@
                             "type": "securestring"
                         },
                         "deployBastion": {
-                            "type": "string"
+                            "type": "bool"
                         }
                     },
                     "variables": {
@@ -314,7 +315,7 @@
                                 }
                             }
                         ],
-                        "subnets": "[if(equals(parameters('deployBastion'), 'true'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
+                        "subnets": "[if(parameters('deployBastion'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
                         "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
                     },
                     "resources": [
@@ -395,7 +396,7 @@
                             }
                         },
                         {
-                            "condition": "[equals(parameters('deployBastion'), 'true')]",
+                            "condition": "[parameters('deployBastion')]",
                             "type": "Microsoft.Network/publicIpAddresses",
                             "apiVersion": "2019-02-01",
                             "name": "[variables('bastionPublicIpAddressName')]",
@@ -496,7 +497,7 @@
                             }
                         },
                         {
-                            "condition": "[equals(parameters('deployBastion'), 'true')]",
+                            "condition": "[parameters('deployBastion')]",
                             "type": "Microsoft.Network/bastionHosts",
                             "apiVersion": "2020-11-01",
                             "name": "[variables('bastionHostName')]",
