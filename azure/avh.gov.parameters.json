@@ -48,6 +48,9 @@
         },
         "commandToExecute": {
             "value": "bash autopart.sh"
+        },
+        "extraNICs": {
+            "value": 2
         }
     }
 }
