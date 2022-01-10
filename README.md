@@ -32,6 +32,16 @@ Deployments can be initiated manually using the following steps:
 4. Complete the form
 5. Click 'Run workflow' at the bottom of the form
 
+### Deployment Notes
+The ARM template deployment can be customized by overriding the default parameter values. Please review the template for a full understanding of the default values. There are also some features that are not configurable at this time. The items below are of particular interest.
+
+* Virtual machines (VM) deployed in all environments except for 'prod' are configured to auto-shutdown at 07:00PM Central Standard Time as a safeguard against unnecessary costs during development/testing.
+* The Network Security Group (NSG) must allow outbound traffic to the internet. This is necessary to allow /bash_scripts/autopart.sh to be retrieved for execution on the VMs as part of the custom script extension that formats and mounts the data disk. The example parameter files in the /azure folder include the required NSG rule to allow HTTPS traffic. Any input supplied to the 'networkSecurityGroupRules' parameter should contain this rule at a minimum to ensure the deployment is successful.
+* The NSG is configured to allow SSH from all IP addresses if no input is provided for the 'networkSecurityGroupSshSourceIP' parameter. A single IP or a comma-separated list of IPs may be supplied to this parameter to limit SSH as needed.
+* A bastion host may be deployed as a method of securely accessing the VMs deployed with this template. However, this is not enabled by default. To enable this part of the deployment, set the 'deployBastion' parameter to either 'true' or 'True'.
+
+
+
 ## Status of Azure Virtualization Host Deployment
 ### Azure
 [![AVH_Deploy_Azure](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.azure.yml/badge.svg?branch=master)](https://github.com/Nchaos/NaaS/actions/workflows/avh_deploy.azure.yml)
