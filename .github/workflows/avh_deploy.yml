@@ -28,12 +28,11 @@ on:
       deployBastion:
         required: false
         type: boolean
+        default: false
     secrets:
       AZURE_CREDS:
         required: true
       ADMIN_PUB_KEY:
-        required: true
-      SOURCE_IP_ADDRESS:
         required: true
 
 jobs:
