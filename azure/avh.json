@@ -152,7 +152,7 @@
             }
         },
         "deployBastion": {
-            "type": "string",
+            "type": "bool",
             "metadata": {
                 "description": "Determines whether a bastion host will be deployed for accessing the VM(s)"
             },
@@ -176,8 +176,7 @@
     },
     "variables": {
         "vmComputerName": "avh",
-        "vmName": "[concat('vm', variables('vmComputerName'))]",
-        "deployBastionBoolean": "[bool(parameters('deployBastion'))]"
+        "vmName": "[concat('vm', variables('vmComputerName'))]"
     },
     "resources": [
         {
@@ -239,10 +238,7 @@
                         "value": "[parameters('adminPublicKey')]"
                     },
                     "deployBastion": {
-                        "value": "[variables('deployBastionBoolean')]"
-                    },
-                    "extraNICs": {
-                        "value": "[parameters('extraNICs')]"
+                        "value": "[parameters('deployBastion')]"
                     }
                 },
                 "template": {
