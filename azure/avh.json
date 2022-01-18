@@ -109,6 +109,13 @@
             },
             "defaultValue": "Basic"
         },
+        "extraNicCount": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of extra network interfaces to add"
+            },
+            "defaultValue": 0
+        },
         "osDiskType": {
             "type": "string",
             "defaultValue": "Premium_LRS"
@@ -168,13 +175,37 @@
     "variables": {
         "vmComputerName": "avh",
         "vmName": "[concat('vm', variables('vmComputerName'))]",
-        "deployBastionBoolean": "[bool(parameters('deployBastion'))]"
+        "networkSecurityGroupName": "[concat('nsg-', parameters('environment'), '-001')]",
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "virtualNetworkName": "[concat('vnet-', parameters('environment'), '-001')]",
+        "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+        "subnetName": "[concat('snet-', parameters('environment'), '-001')]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
+        "deployBastionBoolean": "[bool(parameters('deployBastion'))]",
+        "primaryNic": [
+            {
+                "name": "[concat('nic-01-', parameters('environment'), '-')]",
+                "primary": "true"
+            }
+        ],
+        "copy": [
+            {
+                "name": "extraNics",
+                "count": "[parameters('extraNicCount')]",
+                "input": {
+                    "name": "[concat('nic-0', copyIndex('extraNics', 2), '-', parameters('environment'), '-')]",
+                    "primary": "false"
+                }
+            }
+        ],
+        "nicList": "[if(greater(parameters('extraNicCount'), 0), union(variables('primaryNic'), variables('extraNics')), variables('primaryNic'))]"
     },
     "resources": [
         {
-            "name": "nestedDeployment-step1-virtualMachines",
+            "name": "nestedDeployment-step1-networking",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
+            "dependsOn": [],
             "properties": {
                 "expressionEvaluationOptions": {
                     "scope": "inner"
@@ -190,44 +221,26 @@
                     "location": {
                         "value": "[parameters('location')]"
                     },
+                    "networkSecurityGroupName": {
+                        "value": "[variables('networkSecurityGroupName')]"
+                    },
                     "networkSecurityGroupRules": {
                         "value": "[parameters('networkSecurityGroupRules')]"
                     },
                     "networkSecurityGroupSshRule": {
                         "value": "[parameters('networkSecurityGroupSshRule')]"
                     },
+                    "virtualNetworkName": {
+                        "value": "[variables('virtualNetworkName')]"
+                    },
+                    "vnetId": {
+                        "value": "[variables('vnetId')]"
+                    },
                     "addressPrefixes": {
                         "value": "[parameters('addressPrefixes')]"
                     },
-                    "enableAcceleratedNetworking": {
-                        "value": "[parameters('enableAcceleratedNetworking')]"
-                    },
-                    "publicIpAddressSku": {
-                        "value": "[parameters('publicIpAddressSku')]"
-                    },
-                    "publicIpAddressType": {
-                        "value": "[parameters('publicIpAddressType')]"
-                    },
-                    "virtualMachineSize": {
-                        "value": "[parameters('virtualMachineSize')]"
-                    },
-                    "osDiskType": {
-                        "value": "[parameters('osDiskType')]"
-                    },
-                    "vmName": {
-                        "value": "[variables('vmName')]"
-                    },
-                    "vmComputerName": {
-                        "value": "[variables('vmComputerName')]"
-                    },
-                    "vmCount": {
-                        "value": "[parameters('vmCount')]"
-                    },
-                    "adminUsername": {
-                        "value": "[parameters('adminUsername')]"
-                    },
-                    "adminPublicKey": {
-                        "value": "[parameters('adminPublicKey')]"
+                    "subnetName": {
+                        "value": "[variables('subnetName')]"
                     },
                     "deployBastion": {
                         "value": "[variables('deployBastionBoolean')]"
@@ -246,14 +259,210 @@
                         "location": {
                             "type": "string"
                         },
+                        "networkSecurityGroupName": {
+                            "type": "string"
+                        },
                         "networkSecurityGroupRules": {
                             "type": "array"
                         },
                         "networkSecurityGroupSshRule": {
                             "type": "array"
                         },
+                        "virtualNetworkName": {
+                            "type": "string"
+                        },
+                        "vnetId": {
+                            "type": "string"
+                        },
                         "addressPrefixes": {
                             "type": "array"
+                        },
+                        "subnetName": {
+                            "type": "string"
+                        },
+                        "deployBastion": {
+                            "type": "bool"
+                        }
+                    },
+                    "variables": {
+                        "bastionHostName": "[concat(parameters('virtualNetworkName'), '-bastion')]",
+                        "bastionPublicIpAddressName": "[concat('pip-01-', parameters('environment'), '-bastion')]",
+                        "bastionSubnetName": "AzureBastionSubnet",
+                        "defaultSubnet": [
+                            {
+                                "name": "[parameters('subnetName')]",
+                                "properties": {
+                                    "addressPrefix": "10.0.0.0/24"
+                                }
+                            }
+                        ],
+                        "bastionSubnet": [
+                            {
+                                "name": "[variables('bastionSubnetName')]",
+                                "properties": {
+                                    "addressPrefix": "10.0.1.0/26"
+                                }
+                            }
+                        ],
+                        "subnets": "[if(parameters('deployBastion'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
+                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/networkSecurityGroups",
+                            "apiVersion": "2019-02-01",
+                            "name": "[parameters('networkSecurityGroupName')]",
+                            "location": "[parameters('location')]",
+                            "tags": "[parameters('tags')]",
+                            "properties": {
+                                "securityRules": "[variables('networkSecurityGroupRules')]"
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "apiVersion": "2020-11-01",
+                            "name": "[parameters('virtualNetworkName')]",
+                            "location": "[parameters('location')]",
+                            "tags": "[parameters('tags')]",
+                            "properties": {
+                                "addressSpace": {
+                                    "addressPrefixes": "[parameters('addressPrefixes')]"
+                                },
+                                "subnets": "[variables('subnets')]"
+                            }
+                        },
+                        {
+                            "condition": "[parameters('deployBastion')]",
+                            "type": "Microsoft.Network/publicIpAddresses",
+                            "apiVersion": "2019-02-01",
+                            "name": "[variables('bastionPublicIpAddressName')]",
+                            "location": "[parameters('location')]",
+                            "tags": "[parameters('tags')]",
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "properties": {
+                                "publicIpAllocationMethod": "Static"
+                            }
+                        },
+                        {
+                            "condition": "[parameters('deployBastion')]",
+                            "type": "Microsoft.Network/bastionHosts",
+                            "apiVersion": "2020-11-01",
+                            "name": "[variables('bastionHostName')]",
+                            "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                                "[concat('Microsoft.Network/publicIpAddresses/', variables('bastionPublicIpAddressName'))]"
+                            ],
+                            "sku": {
+                                "name": "Basic"
+                            },
+                            "properties": {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "IpConf",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[concat(parameters('vnetId'), '/subnets/', variables('bastionSubnetName'))]"
+                                            },
+                                            "publicIPAddress": {
+                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('bastionPublicIpAddressName'))]"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "outputs": {}
+                }
+            }
+        },
+        {
+            "name": "[concat('nestedDeployment-step2-nics-and-VM-', variables('vmName'), copyIndex(101))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'nestedDeployment-step1-networking')]"
+            ],
+            "copy": {
+                "name": "createVMs",
+                "count": "[parameters('vmCount')]"
+            },
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "tags": {
+                        "value": "[parameters('tags')]"
+                    },
+                    "environment": {
+                        "value": "[parameters('environment')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "nsgId": {
+                        "value": "[variables('nsgId')]"
+                    },
+                    "nicList": {
+                        "value": "[variables('nicList')]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('subnetRef')]"
+                    },
+                    "enableAcceleratedNetworking": {
+                        "value": "[parameters('enableAcceleratedNetworking')]"
+                    },
+                    "publicIpAddressSku": {
+                        "value": "[parameters('publicIpAddressSku')]"
+                    },
+                    "publicIpAddressType": {
+                        "value": "[parameters('publicIpAddressType')]"
+                    },
+                    "virtualMachineSize": {
+                        "value": "[parameters('virtualMachineSize')]"
+                    },
+                    "osDiskType": {
+                        "value": "[parameters('osDiskType')]"
+                    },
+                    "vmName": {
+                        "value": "[concat(variables('vmName'), copyIndex(101))]"
+                    },
+                    "vmComputerName": {
+                        "value": "[concat(variables('vmComputerName'), copyIndex(101))]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPublicKey": {
+                        "value": "[parameters('adminPublicKey')]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "tags": {
+                            "type": "object"
+                        },
+                        "environment": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "nsgId": {
+                            "type": "string"
+                        },
+                        "nicList": {
+                            "type": "array"
+                        },
+                        "subnetRef": {
+                            "type": "string"
                         },
                         "enableAcceleratedNetworking": {
                             "type": "bool"
@@ -276,120 +485,24 @@
                         "vmComputerName": {
                             "type": "string"
                         },
-                        "vmCount": {
-                            "type": "int"
-                        },
                         "adminUsername": {
                             "type": "string"
                         },
                         "adminPublicKey": {
                             "type": "securestring"
-                        },
-                        "deployBastion": {
-                            "type": "bool"
                         }
                     },
                     "variables": {
-                        "networkSecurityGroupName": "[concat('nsg-', parameters('environment'), '-001')]",
-                        "virtualNetworkName": "[concat('vnet-', parameters('environment'), '-001')]",
-                        "nicName": "[concat('nic-01-', parameters('environment'), '-', parameters('vmName'))]",
-                        "publicIpAddressName": "[concat('pip-01-', parameters('environment'), '-', parameters('vmName'))]",
-                        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-                        "vnetId": "[resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-                        "subnetName": "[concat('snet-', parameters('environment'), '-001')]",
-                        "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]",
-                        "bastionHostName": "[concat(variables('virtualNetworkName'), '-bastion')]",
-                        "bastionPublicIpAddressName": "[concat('pip-01-', parameters('environment'), '-bastion')]",
-                        "bastionSubnetName": "AzureBastionSubnet",
-                        "defaultSubnet": [
-                            {
-                                "name": "[variables('subnetName')]",
-                                "properties": {
-                                    "addressPrefix": "10.0.0.0/24"
-                                }
-                            }
-                        ],
-                        "bastionSubnet": [
-                            {
-                                "name": "[variables('bastionSubnetName')]",
-                                "properties": {
-                                    "addressPrefix": "10.0.1.0/26"
-                                }
-                            }
-                        ],
-                        "subnets": "[if(parameters('deployBastion'), union(variables('defaultSubnet'), variables('bastionSubnet')), variables('defaultSubnet'))]",
-                        "networkSecurityGroupRules": "[union(parameters('networkSecurityGroupRules'), parameters('networkSecurityGroupSshRule'))]"
+                        "publicIpAddressName": "[concat('pip-01-', parameters('environment'), '-', parameters('vmName'))]"
                     },
                     "resources": [
                         {
-                            "type": "Microsoft.Network/networkInterfaces",
-                            "apiVersion": "2020-11-01",
-                            "name": "[concat(variables('nicName'), copyIndex(101))]",
-                            "location": "[parameters('location')]",
-                            "copy": {
-                                "name": "copy",
-                                "count": "[parameters('vmCount')]"
-                            },
-                            "dependsOn": [
-                                "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
-                                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                                "[concat('Microsoft.Network/publicIpAddresses/', concat(variables('publicIpAddressName'), copyIndex(101)))]"
-                            ],
-                            "tags": "[parameters('tags')]",
-                            "properties": {
-                                "ipConfigurations": [
-                                    {
-                                        "name": "ipconfig1",
-                                        "properties": {
-                                            "subnet": {
-                                                "id": "[variables('subnetRef')]"
-                                            },
-                                            "privateIPAllocationMethod": "Dynamic",
-                                            "publicIpAddress": {
-                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', concat(variables('publicIpAddressName'), copyIndex(101)))]"
-                                            }
-                                        }
-                                    }
-                                ],
-                                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
-                                "networkSecurityGroup": {
-                                    "id": "[variables('nsgId')]"
-                                }
-                            }
-                        },
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2019-02-01",
-                            "name": "[variables('networkSecurityGroupName')]",
-                            "location": "[parameters('location')]",
-                            "tags": "[parameters('tags')]",
-                            "properties": {
-                                "securityRules": "[variables('networkSecurityGroupRules')]"
-                            }
-                        },
-                        {
-                            "type": "Microsoft.Network/virtualNetworks",
-                            "apiVersion": "2020-11-01",
-                            "name": "[variables('virtualNetworkName')]",
-                            "location": "[parameters('location')]",
-                            "tags": "[parameters('tags')]",
-                            "properties": {
-                                "addressSpace": {
-                                    "addressPrefixes": "[parameters('addressPrefixes')]"
-                                },
-                                "subnets": "[variables('subnets')]"
-                            }
-                        },
-                        {
+                            "comments": "Public IP for primary NIC",
                             "type": "Microsoft.Network/publicIpAddresses",
                             "apiVersion": "2019-02-01",
-                            "name": "[concat(variables('publicIpAddressName'), copyIndex(101))]",
+                            "name": "[variables('publicIpAddressName')]",
                             "location": "[parameters('location')]",
                             "tags": "[parameters('tags')]",
-                            "copy": {
-                                "name": "copy",
-                                "count": "[parameters('vmCount')]"
-                            },     
                             "sku": {
                                 "name": "[parameters('publicIpAddressSku')]"
                             },
@@ -398,31 +511,77 @@
                             }
                         },
                         {
-                            "condition": "[parameters('deployBastion')]",
-                            "type": "Microsoft.Network/publicIpAddresses",
-                            "apiVersion": "2019-02-01",
-                            "name": "[variables('bastionPublicIpAddressName')]",
+                            "comments": "Primary NIC",
+                            "type": "Microsoft.Network/networkInterfaces",
+                            "apiVersion": "2020-11-01",
+                            "name": "[concat(parameters('nicList')[0].name, parameters('vmName'))]",
                             "location": "[parameters('location')]",
+                            "dependsOn": [
+                                "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+                            ],
                             "tags": "[parameters('tags')]",
-                            "sku": {
-                                "name": "Standard"
-                            },
                             "properties": {
-                                "publicIpAllocationMethod": "Static"
+                                "ipConfigurations": [
+                                    {
+                                        "name": "ipconfig1",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[parameters('subnetRef')]"
+                                            },
+                                            "privateIPAllocationMethod": "Dynamic",
+                                            "primary": true,
+                                            "publicIpAddress": {
+                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                                "networkSecurityGroup": {
+                                    "id": "[parameters('nsgId')]"
+                                }
+                            }
+                        },
+                        {
+                            "comments": "Extra NICs",
+                            "condition": "[greater(length(parameters('nicList')), 1)]",
+                            "type": "Microsoft.Network/networkInterfaces",
+                            "apiVersion": "2020-11-01",
+                            "name": "[concat(parameters('nicList')[copyIndex(1)].name, parameters('vmName'))]",
+                            "location": "[parameters('location')]",
+                            "copy": {
+                                "name": "copyNics",
+                                "count": "[sub(length(parameters('nicList')), 1)]"
+                            },
+                            "tags": "[parameters('tags')]",
+                            "properties": {
+                                "ipConfigurations": [
+                                    {
+                                        "name": "ipconfig1",
+                                        "properties": {
+                                            "subnet": {
+                                                "id": "[parameters('subnetRef')]"
+                                            },
+                                            "privateIPAllocationMethod": "Dynamic",
+                                            "primary": true
+                                        }
+                                    }
+                                ],
+                                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]",
+                                "networkSecurityGroup": {
+                                    "id": "[parameters('nsgId')]"
+                                }
                             }
                         },
                         {
                             "type": "Microsoft.Compute/virtualMachines",
                             "apiVersion": "2021-07-01",
-                            "name": "[concat(parameters('vmName'), copyIndex(101))]",
+                            "name": "[concat(parameters('vmName'))]",
                             "location": "[parameters('location')]",
                             "dependsOn": [
-                                "[concat('Microsoft.Network/networkInterfaces/', concat(variables('nicName'), copyIndex(101)))]"
+                                "[concat('Microsoft.Network/networkInterfaces/', parameters('nicList')[0].name, parameters('vmName'))]",
+                                "copyNics"
                             ],
-                            "copy": {
-                                "name": "copy",
-                                "count": "[parameters('vmCount')]"
-                            },
                             "tags": "[parameters('tags')]",
                             "properties": {
                                 "hardwareProfile": {
@@ -443,14 +602,21 @@
                                     }
                                 },
                                 "networkProfile": {
-                                    "networkInterfaces": [
+                                    "copy": [
                                         {
-                                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicName'), copyIndex(101)))]"
+                                            "name": "networkInterfaces",
+                                            "count": "[length(parameters('nicList'))]",
+                                            "input": {
+                                                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('nicList')[copyIndex('networkInterfaces')].name, parameters('vmName')))]",
+                                                "properties": {
+                                                    "primary": "[parameters('nicList')[copyIndex('networkInterfaces')].primary]"
+                                                }
+                                            }
                                         }
                                     ]
                                 },
                                 "osProfile": {
-                                    "computerName": "[concat(parameters('vmComputerName'), copyIndex(101))]",
+                                    "computerName": "[concat(parameters('vmComputerName'))]",
                                     "adminUsername": "[parameters('adminUsername')]",
                                     "linuxConfiguration": {
                                         "disablePasswordAuthentication": true,
@@ -475,15 +641,11 @@
                             "condition": "[not(equals(parameters('environment'), 'prod'))]",
                             "type": "Microsoft.DevTestLab/schedules",
                             "apiVersion": "2018-09-15",
-                            "name": "[concat('shutdown-computevm-', parameters('vmName'), copyIndex(101))]",
+                            "name": "[concat('shutdown-computevm-', parameters('vmName'))]",
                             "location": "[parameters('location')]",
                             "dependsOn": [
-                                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), copyIndex(101))]"
+                                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
                             ],
-                            "copy": {
-                                "name": "copy",
-                                "count": "[parameters('vmCount')]"
-                            },
                             "tags": "[parameters('tags')]",
                             "properties": {
                                 "status": "Enabled",
@@ -492,39 +654,10 @@
                                     "time": "1900"
                                 },
                                 "timeZoneId": "Central Standard Time",
-                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmName'), copyIndex(101)))]",
+                                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(parameters('vmName')))]",
                                 "notificationSettings": {
                                     "status": "Disabled"
                                 }
-                            }
-                        },
-                        {
-                            "condition": "[parameters('deployBastion')]",
-                            "type": "Microsoft.Network/bastionHosts",
-                            "apiVersion": "2020-11-01",
-                            "name": "[variables('bastionHostName')]",
-                            "location": "[parameters('location')]",
-                            "dependsOn": [
-                                "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-                                "[concat('Microsoft.Network/publicIpAddresses/', variables('bastionPublicIpAddressName'))]"
-                            ],
-                            "sku": {
-                                "name": "Basic"
-                            },
-                            "properties": {
-                                "ipConfigurations": [
-                                    {
-                                        "name": "IpConf",
-                                        "properties": {
-                                            "subnet": {
-                                                "id": "[concat(variables('vnetId'), '/subnets/', variables('bastionSubnetName'))]"
-                                            },
-                                            "publicIPAddress": {
-                                                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('bastionPublicIpAddressName'))]"
-                                            }
-                                        }
-                                    }
-                                ]
                             }
                         }
                     ],
@@ -533,11 +666,11 @@
             }
         },
         {
-            "name": "[concat('nestedDeployment-step2-dataDisks-customScript-', variables('vmName'), copyIndex(101))]",
+            "name": "[concat('nestedDeployment-step3-dataDisks-customScript-', variables('vmName'), copyIndex(101))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'nestedDeployment-step1-virtualMachines')]"
+                "createVMs"
             ],
             "copy": {
                 "name": "copy",
